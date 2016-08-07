@@ -79,7 +79,8 @@
                     android:textAppearance="?android:attr/textAppearanceMedium"
                     android:id="@+id/die_rolls"
                     android:enabled="true"
-                    android:textAlignment="center" />
+                    android:textAlignment="center"
+                    android:textSize="20sp" />
             </RelativeLayout>
         </ScrollView>
 
@@ -111,24 +112,76 @@
         android:focusableInTouchMode="true"
         android:layout_below="@+id/roll_die_button">
 
-        <TextView
-            android:layout_width="wrap_content"
+        <TableLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceMedium"
-            android:id="@+id/result_summary"
             android:layout_alignParentTop="true"
-            android:layout_centerHorizontal="true" />
+
+            android:stretchColumns="*"
+            android:layout_above="@+id/tableLayout">
+
+            <TableRow
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <TextView
+                    android:textAppearance="?android:attr/textAppearanceMedium"
+                    android:id="@+id/dice_one_rolls"
+                    android:layout_column="0" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="?android:attr/textAppearanceMedium"
+                    android:id="@+id/dice_four_rolls"
+                    android:layout_column="1" />
+            </TableRow>
+
+            <TableRow
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <TextView
+                    android:textAppearance="?android:attr/textAppearanceMedium"
+                    android:id="@+id/dice_two_rolls"
+                    android:layout_column="0" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="?android:attr/textAppearanceMedium"
+                    android:id="@+id/dice_five_rolls"
+                    android:layout_column="1" />
+            </TableRow>
+
+            <TableRow
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <TextView
+                    android:textAppearance="?android:attr/textAppearanceMedium"
+                    android:id="@+id/dice_three_rolls"
+                    android:layout_column="0" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="?android:attr/textAppearanceMedium"
+                    android:id="@+id/dice_six_rolls"
+                    android:layout_column="1" />
+            </TableRow>
+        </TableLayout>
 
         <TableLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:layout_centerHorizontal="true"
             android:stretchColumns="*"
             android:layout_alignParentBottom="true"
             android:layout_alignParentLeft="false"
             android:layout_alignParentRight="false"
             android:gravity="bottom"
-            android:layout_below="@+id/result_summary">
+            android:id="@+id/tableLayout">
 
             <TableRow
                 android:layout_width="match_parent"

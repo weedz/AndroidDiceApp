@@ -1,6 +1,7 @@
 package com.weedz.dice;
 
 import android.app.Application;
+import android.graphics.Typeface;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -96,11 +97,25 @@ public class MainActivity extends AppCompatActivity implements Observer {
                     break;
             }
         }
-        TextView summary = (TextView)findViewById(R.id.result_summary);
-        summary.setText("1s: " + dice[0] + ", 2s: " + dice[1] + ", 3s: " +
-                dice[2] + ", 4s: " + dice[3] + ", 5s: " + dice[4] + ", 6s: " + dice[5]);
-        /*Toast.makeText(getApplicationContext(), "1s: " + dice[0] + ", 2s: " + dice[1] + ", 3s: " +
-                dice[2] + ", 4s: " + dice[3] + ", 5s: " + dice[4] + ", 6s: " + dice[5], Toast.LENGTH_LONG).show();*/
+
+        TextView[] dice_rolls = new TextView[6];
+
+        dice_rolls[0] = (TextView)findViewById(R.id.dice_one_rolls);
+        dice_rolls[1] = (TextView)findViewById(R.id.dice_two_rolls);
+        dice_rolls[2] = (TextView)findViewById(R.id.dice_three_rolls);
+        dice_rolls[3] = (TextView)findViewById(R.id.dice_four_rolls);
+        dice_rolls[4] = (TextView)findViewById(R.id.dice_five_rolls);
+        dice_rolls[5] = (TextView)findViewById(R.id.dice_six_rolls);
+
+        for (int i = 0; i < 6; i++) {
+            if (dice[i] > 0) {
+                dice_rolls[i].setTypeface(null, Typeface.BOLD);
+            } else {
+                dice_rolls[i].setTypeface(null, Typeface.NORMAL);
+            }
+            dice_rolls[i].setText((i+1) + "s: " + dice[i]);
+        }
+
     }
 
     @Override
@@ -113,7 +128,7 @@ public class MainActivity extends AppCompatActivity implements Observer {
     @Override
     public void update(Observable o, Object obj) {
         TextView dice = (TextView) findViewById(R.id.nrOfDice);
-        dice.setText("Dices: " + Data.getInstance().getNrOfDie());
+        dice.setText("Dices: " + Data.getInstance().getNrOfDie() + "d6");
 
 
     }
