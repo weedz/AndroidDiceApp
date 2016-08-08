@@ -9,6 +9,7 @@ import android.os.Message;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -249,6 +250,10 @@ public class MainActivity extends AppCompatActivity implements Observer {
                     //Log.d(TAG, "SummaryUpdateUIThread(): interrupted");
                     handler.sendEmptyMessage(0);
                     return;
+                }
+                if (Data.getInstance().getDie(i) == 0) {
+                    //Log.d(TAG, "SummaryUpdateUIThread(): getDie(" + i + "):IndexOutOfBounds");
+                    break;
                 }
                 dice[Data.getInstance().getDie(i)-1]++;
             }
