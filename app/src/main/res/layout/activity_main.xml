@@ -112,65 +112,25 @@
         android:focusableInTouchMode="true"
         android:layout_below="@+id/roll_die_button">
 
-        <TableLayout
+        <ScrollView
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_alignParentTop="true"
+            android:layout_height="match_parent"
+            android:id="@+id/scrollView2"
+            android:layout_alignParentTop="false"
+            android:layout_alignParentBottom="false"
+            android:layout_above="@+id/tableLayout"
+            android:layout_alignParentEnd="false"
+            android:layout_alignParentStart="false">
 
-            android:stretchColumns="*"
-            android:layout_above="@+id/tableLayout">
-
-            <TableRow
+            <TableLayout
                 android:layout_width="match_parent"
-                android:layout_height="match_parent">
+                android:layout_height="wrap_content"
 
-                <TextView
-                    android:textAppearance="?android:attr/textAppearanceMedium"
-                    android:id="@+id/dice_one_rolls"
-                    android:layout_column="0" />
+                android:stretchColumns="*"
+                android:id="@+id/dice_summary">
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textAppearance="?android:attr/textAppearanceMedium"
-                    android:id="@+id/dice_four_rolls"
-                    android:layout_column="1" />
-            </TableRow>
-
-            <TableRow
-                android:layout_width="match_parent"
-                android:layout_height="match_parent">
-
-                <TextView
-                    android:textAppearance="?android:attr/textAppearanceMedium"
-                    android:id="@+id/dice_two_rolls"
-                    android:layout_column="0" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textAppearance="?android:attr/textAppearanceMedium"
-                    android:id="@+id/dice_five_rolls"
-                    android:layout_column="1" />
-            </TableRow>
-
-            <TableRow
-                android:layout_width="match_parent"
-                android:layout_height="match_parent">
-
-                <TextView
-                    android:textAppearance="?android:attr/textAppearanceMedium"
-                    android:id="@+id/dice_three_rolls"
-                    android:layout_column="0" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textAppearance="?android:attr/textAppearanceMedium"
-                    android:id="@+id/dice_six_rolls"
-                    android:layout_column="1" />
-            </TableRow>
-        </TableLayout>
+            </TableLayout>
+        </ScrollView>
 
         <TableLayout
             android:layout_width="match_parent"
@@ -191,28 +151,56 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:inputType="numberSigned"
-                    android:ems="2"
+                    android:ems="1"
                     android:id="@+id/add_die_nr"
                     android:layout_column="0"
-                    android:text="1" />
+                    android:text="1"
+                    android:layout_span="1" />
 
                 <EditText
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:inputType="numberSigned"
-                    android:ems="2"
-                    android:id="@+id/set_dice_nr"
+                    android:ems="1"
+                    android:id="@+id/add_die_sides"
                     android:layout_column="1"
-                    android:text="1" />
+                    android:text="6" />
 
                 <EditText
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:inputType="numberSigned"
-                    android:ems="2"
-                    android:id="@+id/remove_die_nr"
+                    android:ems="1"
+                    android:id="@+id/set_dice_nr"
                     android:layout_column="2"
                     android:text="1" />
+
+                <EditText
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:inputType="numberSigned"
+                    android:ems="1"
+                    android:id="@+id/set_dice_sides"
+                    android:layout_column="3"
+                    android:text="6" />
+
+                <EditText
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:inputType="numberSigned"
+                    android:ems="1"
+                    android:id="@+id/remove_die_nr"
+                    android:layout_column="4"
+                    android:text="1" />
+
+                <EditText
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:inputType="numberSigned"
+                    android:ems="1"
+                    android:id="@+id/remove_die_sides"
+                    android:layout_column="5"
+                    android:text="6" />
             </TableRow>
 
             <TableRow
@@ -222,21 +210,24 @@
                 <Button
                     android:text="@string/add_die_bt"
                     android:id="@+id/add_die_button"
-                    android:layout_column="0" />
+                    android:layout_column="0"
+                    android:layout_span="2" />
 
                 <Button
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/set_bt"
                     android:id="@+id/set_dice_button"
-                    android:layout_column="1" />
+                    android:layout_column="1"
+                    android:layout_span="2" />
 
                 <Button
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/remove_die_bt"
                     android:id="@+id/remove_die_button"
-                    android:layout_column="2" />
+                    android:layout_column="2"
+                    android:layout_span="2" />
             </TableRow>
         </TableLayout>
 
