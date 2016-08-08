@@ -54,7 +54,7 @@ public class MainActivity extends AppCompatActivity implements Observer {
                         Data.getInstance().addDice(nr, sides);
                     }
                 } catch (NumberFormatException e) {
-                    Log.i(TAG, "AddDie():NumberFormatException");
+                    //Log.i(TAG, "AddDie():NumberFormatException");
                 }
             }
         });
@@ -79,7 +79,7 @@ public class MainActivity extends AppCompatActivity implements Observer {
                         Data.getInstance().removeDie(nr, sides);
                     }
                 } catch (NumberFormatException e) {
-                    Log.i(TAG, "RemoveDie():NumberFormatException");
+                    //Log.i(TAG, "RemoveDie():NumberFormatException");
                 }
             }
         });
@@ -104,7 +104,7 @@ public class MainActivity extends AppCompatActivity implements Observer {
                         Data.getInstance().setDice(nr, sides);
                     }
                 } catch (NumberFormatException e) {
-                    Log.i(TAG, "SetDie():NumberFormatException");
+                    //Log.i(TAG, "SetDie():NumberFormatException");
                 }
             }
         });
@@ -124,6 +124,20 @@ public class MainActivity extends AppCompatActivity implements Observer {
                 TextView total_result = (TextView)findViewById(R.id.total_result);
                 total_result.setText("Calculating...");
                 rolls.setText("Rolling...");
+                // Reset summary table
+                TableLayout tl = (TableLayout)ref.get().findViewById(R.id.dice_summary);
+                tl.removeAllViews();
+
+                TableRow tr = new TableRow(getApplicationContext());
+
+                TextView textView = new TextView(getApplicationContext());
+                textView.setTextAppearance(android.R.style.TextAppearance_Material_Medium_Inverse);
+                textView.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
+                textView.setTypeface(null, Typeface.NORMAL);
+                textView.setText("Calculating...");
+                tr.addView(textView);
+                tl.addView(tr);
+
                 Data.getInstance().roll();
             }
         });
@@ -143,11 +157,11 @@ public class MainActivity extends AppCompatActivity implements Observer {
             if (!Thread.currentThread().isInterrupted()) {
                 switch (msg.what) {
                     case 0: // Interrupted
-                        Toast.makeText(ref.get().getApplicationContext(), "Roll interrupted...", Toast.LENGTH_SHORT).show();
+                        //Toast.makeText(ref.get().getApplicationContext(), "Roll interrupted...", Toast.LENGTH_SHORT).show();
                         break;
                     case 1: // All dice rolls finished
-                        TextView rolls = (TextView) ref.get().findViewById(R.id.die_rolls);
-                        rolls.setText("d" + Data.getInstance().getLargestDie() + "(" + msg.obj + ")");
+                        //TextView rolls = (TextView) ref.get().findViewById(R.id.die_rolls);
+                        //rolls.setText("d" + Data.getInstance().getLargestDie() + "(" + msg.obj + ")");
                         break;
                     case 2: // Summary finished
                         int[] dice = (int[])msg.obj;
@@ -193,7 +207,7 @@ public class MainActivity extends AppCompatActivity implements Observer {
             int[] dice = new int[Data.getInstance().getLargestDie()];
             for (int i = 0; i < Data.getInstance().getNrOfDie(); i++) {
                 if(Thread.interrupted()) {
-                    Log.d(TAG, "SummaryUpdateUIThread(): interrupted");
+                    //Log.d(TAG, "SummaryUpdateUIThread(): interrupted");
                     handler.sendEmptyMessage(0);
                     return;
                 }
@@ -212,7 +226,7 @@ public class MainActivity extends AppCompatActivity implements Observer {
             StringBuilder stringBuilder = new StringBuilder(Data.getInstance().getNrOfDie()*2);
             for (int i = 0; i < Data.getInstance().getNrOfDie(); i++) {
                 if(Thread.interrupted()) {
-                    Log.d(TAG, "RollUpdateUIThread(): interrupted");
+                    //Log.d(TAG, "RollUpdateUIThread(): interrupted");
                     handler.sendEmptyMessage(0);
                     return;
                 }
@@ -290,7 +304,6 @@ public class MainActivity extends AppCompatActivity implements Observer {
 
     @Override
     public void update(Observable o, Object obj) {
-        Log.d(TAG, "update");
         if (Data.getInstance().getFlag(Data.FLAG_DICE_ROLL)) {
             diceRolled();
             Data.getInstance().setFlag(Data.FLAG_DICE_ROLL, false);

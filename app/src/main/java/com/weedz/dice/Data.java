@@ -61,32 +61,14 @@ public class Data extends Observable {
         if (mRollThread != null && mRollThread.isAlive()) {
             mRollThread.interrupt();
         }
-        if (nr > 1000-dice.size()) {
-            nr = 1000-dice.size();
+        if (nr > 10000-dice.size()) {
+            nr = 10000-dice.size();
         }
         dice.addAll(Arrays.asList(new Integer[nr]));
         setFlag(FLAG_DIEBAG_UPDATE, true);
         setUpdate();
     }
 
-    /*public synchronized void removeDie(int nr) {
-        if (flags[FLAG_THREAD_LOCK]) {
-            Log.d(TAG,"removeDie(): ThreadLock");
-            return;
-        }
-        if (mRollThread != null && mRollThread.isAlive()) {
-            mRollThread.interrupt();
-        }
-        for (int i = 0; i < nr; i++) {
-            if (dice.size() > 0) {
-                dice.remove(0);
-            } else {
-                break;
-            }
-        }
-        setFlag(FLAG_DIEBAG_UPDATE, true);
-        setUpdate();
-    }*/
     public synchronized void removeDie(int nr, int sides) {
         if (flags[FLAG_THREAD_LOCK]) {
             Log.d(TAG,"removeDie(): ThreadLock");
@@ -107,6 +89,9 @@ public class Data extends Observable {
     }
 
     public synchronized void setDice(int nr, int sides) {
+        if (sides > 500) {
+            sides = 500;
+        }
         largestDie = sides;
         if (flags[FLAG_THREAD_LOCK]) {
             Log.d(TAG,"setDice(): ThreadLock");
@@ -125,11 +110,11 @@ public class Data extends Observable {
 
     public synchronized int getDie(int i) {
         if (mRollThread != null && mRollThread.isAlive()) {
-            Log.d(TAG, "getDie(): interrupt");
+            //Log.d(TAG, "getDie(): interrupt");
             mRollThread.interrupt();
         }
         if (dice.size() < i || dice.get(i) == null) {
-            Log.d(TAG, "getDie(" + i + "): OutOfBounds");
+            //Log.d(TAG, "getDie(" + i + "): OutOfBounds");
             return 0;
         }
         return dice.get(i);
@@ -139,7 +124,6 @@ public class Data extends Observable {
         return dice.size();
     }
 
-    // TODO: run in a separate thread?
     public synchronized void roll() {
         if (mRollThread != null) {
             mRollThread.interrupt();
@@ -162,7 +146,7 @@ public class Data extends Observable {
         @Override
         public void handleMessage(Message msg) {
             if(msg == null) {
-                Log.d(TAG, "RollHandler() msg == null");
+                //Log.d(TAG, "RollHandler() msg == null");
                 return;
             }
             if (!Thread.currentThread().isInterrupted()) {
