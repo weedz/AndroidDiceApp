@@ -149,6 +149,7 @@ public class MainActivity extends AppCompatActivity implements Observer {
                     TableRow tr = new TableRow(getApplicationContext());
                     TextView textView = new TextView(getApplicationContext());
                     textView.setTextAppearance(android.R.style.TextAppearance_Material_Medium_Inverse);
+                    textView.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
                     textView.setGravity(Gravity.CENTER_HORIZONTAL);
                     textView.setTypeface(null, Typeface.NORMAL);
                     textView.setText("Calculating...");
