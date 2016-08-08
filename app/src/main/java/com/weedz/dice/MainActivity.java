@@ -1,18 +1,23 @@
 package com.weedz.dice;
 
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Typeface;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
-import android.util.Log;
+import android.support.v7.widget.Toolbar;
+import android.view.Gravity;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import java.lang.ref.WeakReference;
 import java.util.Observable;
@@ -28,10 +33,18 @@ public class MainActivity extends AppCompatActivity implements Observer {
     WeakReference<MainActivity> ref = new WeakReference<>(this);
     RollUpdateUIHandler handler = new RollUpdateUIHandler(ref);
 
+    private SharedPreferences pref;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        Toolbar toolbar = (Toolbar)findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+
+        pref = PreferenceManager.getDefaultSharedPreferences(this);
+        // Set default values for settings
+        PreferenceManager.setDefaultValues(this, R.xml.pref_main, false);
 
         Button bt_add_die = (Button)findViewById(R.id.add_die_button);
         bt_add_die.setOnClickListener(new View.OnClickListener() {
@@ -108,7 +121,7 @@ public class MainActivity extends AppCompatActivity implements Observer {
                 }
             }
         });
-        Button roll = (Button)findViewById(R.id.roll_die_button);
+        final Button roll = (Button)findViewById(R.id.roll_die_button);
         roll.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -123,26 +136,48 @@ public class MainActivity extends AppCompatActivity implements Observer {
                 TextView rolls = (TextView) ref.get().findViewById(R.id.die_rolls);
                 TextView total_result = (TextView)findViewById(R.id.total_result);
                 total_result.setText("Calculating...");
-                rolls.setText("Rolling...");
+                if (pref.getBoolean("pref_settings_detailed_roll", true)) {
+                    rolls.setText("Rolling...");
+                } else {
+                    rolls.setText("");
+                }
                 // Reset summary table
                 TableLayout tl = (TableLayout)ref.get().findViewById(R.id.dice_summary);
                 tl.removeAllViews();
 
-                TableRow tr = new TableRow(getApplicationContext());
-
-                TextView textView = new TextView(getApplicationContext());
-                textView.setTextAppearance(android.R.style.TextAppearance_Material_Medium_Inverse);
-                textView.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
-                textView.setTypeface(null, Typeface.NORMAL);
-                textView.setText("Calculating...");
-                tr.addView(textView);
-                tl.addView(tr);
-
+                if (pref.getBoolean("pref_settings_summary", true)) {
+                    TableRow tr = new TableRow(getApplicationContext());
+                    TextView textView = new TextView(getApplicationContext());
+                    textView.setTextAppearance(android.R.style.TextAppearance_Material_Medium_Inverse);
+                    textView.setGravity(Gravity.CENTER_HORIZONTAL);
+                    textView.setTypeface(null, Typeface.NORMAL);
+                    textView.setText("Calculating...");
+                    tr.addView(textView);
+                    tl.addView(tr);
+                }
                 Data.getInstance().roll();
             }
         });
 
         Data.getInstance().addObserver(this);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.action_settings: {
+                Intent intent = new Intent(this, SettingsActivity.class);
+                startActivity(intent);
+                break;
+            }
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     static class RollUpdateUIHandler extends Handler {
@@ -160,41 +195,44 @@ public class MainActivity extends AppCompatActivity implements Observer {
                         //Toast.makeText(ref.get().getApplicationContext(), "Roll interrupted...", Toast.LENGTH_SHORT).show();
                         break;
                     case 1: // All dice rolls finished
-                        //TextView rolls = (TextView) ref.get().findViewById(R.id.die_rolls);
-                        //rolls.setText("d" + Data.getInstance().getLargestDie() + "(" + msg.obj + ")");
+                        if (ref.get().pref.getBoolean("pref_settings_detailed_roll", true)) {
+                            TextView rolls = (TextView) ref.get().findViewById(R.id.die_rolls);
+                            rolls.setText("d" + Data.getInstance().getLargestDie() + "(" + msg.obj + ")");
+                        }
                         break;
                     case 2: // Summary finished
-                        int[] dice = (int[])msg.obj;
-                        TableLayout tl = (TableLayout)ref.get().findViewById(R.id.dice_summary);
-                        tl.removeAllViews();
-                        // Three columns in table, calculate how rows we need
-                        int rows = (int)Math.ceil(Data.getInstance().getLargestDie() / 3.0f);
-                        TableRow[] tr = new TableRow[rows];
-                        for (int i = 0;i < rows; i++) {
-                            tr[i] = new TableRow(ref.get());
-                        }
-
-                        TextView[] textView = new TextView[Data.getInstance().getLargestDie()];
-
-                        int trCounter;
-                        for (int i = 0; i < textView.length; i++) {
-                            trCounter = i / 3;
-
-                            textView[i] = new TextView(ref.get());
-                            textView[i].setTextAppearance(android.R.style.TextAppearance_Material_Medium);
-
-                            if (dice[i] > 0) {
-                                textView[i].setTypeface(null, Typeface.BOLD);
-                            } else {
-                                textView[i].setTypeface(null, Typeface.NORMAL);
+                        if (ref.get().pref.getBoolean("pref_settings_summary", true)) {
+                            int[] dice = (int[])msg.obj;
+                            TableLayout tl = (TableLayout)ref.get().findViewById(R.id.dice_summary);
+                            tl.removeAllViews();
+                            // Three columns in table, calculate how rows we need
+                            int rows = (int)Math.ceil(Data.getInstance().getLargestDie() / 3.0f);
+                            TableRow[] tr = new TableRow[rows];
+                            for (int i = 0;i < rows; i++) {
+                                tr[i] = new TableRow(ref.get());
                             }
-                            textView[i].setText((i+1) + "s: " + dice[i]);
-                            tr[trCounter].addView(textView[i]);
-                        }
-                        for (TableRow row: tr) {
-                            tl.addView(row);
-                        }
 
+                            TextView[] textView = new TextView[Data.getInstance().getLargestDie()];
+
+                            int trCounter;
+                            for (int i = 0; i < textView.length; i++) {
+                                trCounter = i / 3;
+
+                                textView[i] = new TextView(ref.get());
+                                textView[i].setTextAppearance(android.R.style.TextAppearance_Material_Medium);
+
+                                if (dice[i] > 0) {
+                                    textView[i].setTypeface(null, Typeface.BOLD);
+                                } else {
+                                    textView[i].setTypeface(null, Typeface.NORMAL);
+                                }
+                                textView[i].setText((i+1) + "s: " + dice[i]);
+                                tr[trCounter].addView(textView[i]);
+                            }
+                            for (TableRow row: tr) {
+                                tl.addView(row);
+                            }
+                        }
                         break;
                 }
             }
