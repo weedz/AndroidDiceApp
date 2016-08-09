@@ -73,12 +73,8 @@
                 android:layout_alignParentEnd="false"
                 android:layout_alignParentStart="false"
                 android:layout_below="@+id/total_result"
-                android:layout_alignWithParentIfMissing="false"
                 android:layout_centerHorizontal="true"
-                android:layout_alignParentBottom="true"
-                android:clickable="false"
-                android:fillViewport="true"
-                android:nestedScrollingEnabled="false">
+                android:layout_alignParentBottom="true">
 
                 <RelativeLayout
                     android:layout_width="match_parent"

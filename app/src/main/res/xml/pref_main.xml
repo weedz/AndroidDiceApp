@@ -8,10 +8,24 @@
             android:title="Detailed roll"
             android:summary="May cause lag"
             android:defaultValue="true" />
+        <EditTextPreference
+            android:key="pref_settings_detailed_roll_thread_sleep"
+            android:title="Detailed roll thread sleep"
+            android:defaultValue="100"
+            android:inputType="number" />
         <CheckBoxPreference
             android:key="pref_settings_summary"
             android:title="Roll Summary"
             android:defaultValue="true" />
+        <EditTextPreference
+            android:key="pref_settings_summary_thread_sleep"
+            android:title="Summary thread sleep"
+            android:defaultValue="100"
+            android:inputType="number" />
+        <SwitchPreference
+            android:key="pref_settings_darktheme"
+            android:title="Dark app theme"
+            android:defaultValue="false" />
     </PreferenceCategory>
 
 </PreferenceScreen>

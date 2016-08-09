@@ -1,8 +1,8 @@
 <resources>
     <string name="app_name">Dice</string>
     <string name="roll">ROLL</string>
-    <string name="add_die_bt">Add die</string>
-    <string name="remove_die_bt">Remove die</string>
+    <string name="add_die_bt">Add dice</string>
+    <string name="remove_die_bt">Remove dice</string>
     <string name="set_bt">Set</string>
     <string name="results">Results</string>
     <string name="action_settings">Settings</string>
