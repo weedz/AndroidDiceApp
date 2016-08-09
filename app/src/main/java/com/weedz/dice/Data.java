@@ -71,9 +71,9 @@ public class Data extends Observable {
         if (mRollThread != null && mRollThread.isAlive()) {
             mRollThread.interrupt();
         }
-        if (nr > 10000-dice.size()) {
+        /*if (nr > 10000-dice.size()) {
             nr = 10000-dice.size();
-        }
+        }*/
         dice.addAll(Arrays.asList(new Integer[nr]));
         setFlag(FLAG_DIEBAG_UPDATE, true);
         setUpdate();
@@ -129,9 +129,9 @@ public class Data extends Observable {
     }
 
     public synchronized void setDice(int nr, int sides) {
-        if (sides > 500) {
+        /*if (sides > 500) {
             sides = 500;
-        }
+        }*/
         largestDie = sides;
         if (flags[FLAG_THREAD_LOCK]) {
             Log.d(TAG,"setDice(): ThreadLock");
@@ -144,9 +144,6 @@ public class Data extends Observable {
         addDice(nr, sides);
     }
     public synchronized void setMultiDice(int nr, int sides) {
-        if (sides > 500) {
-            sides = 500;
-        }
         largestDie = sides;
         if (flags[FLAG_THREAD_LOCK]) {
             Log.d(TAG,"setDice(): ThreadLock");

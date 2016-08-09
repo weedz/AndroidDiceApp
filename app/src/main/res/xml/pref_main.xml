@@ -2,7 +2,8 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
 
     <PreferenceCategory
-        android:title="Settings">
+        android:key="pref_category_detailed_roll"
+        android:title="Detailed roll">
         <CheckBoxPreference
             android:key="pref_settings_detailed_roll"
             android:title="Detailed roll"
@@ -10,18 +11,53 @@
             android:defaultValue="true" />
         <EditTextPreference
             android:key="pref_settings_detailed_roll_thread_sleep"
+            android:dependency="pref_settings_detailed_roll"
             android:title="Detailed roll thread sleep"
-            android:defaultValue="100"
+            android:defaultValue="10"
             android:inputType="number" />
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:key="pref_category_summary"
+        android:title="Roll summary">
         <CheckBoxPreference
             android:key="pref_settings_summary"
             android:title="Roll Summary"
+            android:summary="May cause lag"
             android:defaultValue="true" />
         <EditTextPreference
             android:key="pref_settings_summary_thread_sleep"
+            android:dependency="pref_settings_summary"
             android:title="Summary thread sleep"
-            android:defaultValue="100"
+            android:defaultValue="10"
             android:inputType="number" />
+    </PreferenceCategory>
+    <PreferenceCategory
+        android:key="pref_category_summary_table"
+        android:title="Roll summary table settings">
+        <EditTextPreference
+            android:key="pref_settings_summary_table_columns"
+            android:title="Summary table columns"
+            android:dependency="pref_settings_summary"
+            android:defaultValue="3"
+            android:inputType="number" />
+        <EditTextPreference
+            android:key="pref_settings_create_summary_thread_sleep"
+            android:dependency="pref_settings_summary"
+            android:title="Create summary table thread sleep"
+            android:defaultValue="10"
+            android:inputType="number" />
+        <EditTextPreference
+            android:key="pref_settings_create_summary_row_buffer"
+            android:dependency="pref_settings_summary"
+            android:title="Create summary table row buffer"
+            android:defaultValue="50"
+            android:inputType="number" />
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:title="UI Settings"
+        android:key="pref_category_ui">
         <SwitchPreference
             android:key="pref_settings_darktheme"
             android:title="Dark app theme"
