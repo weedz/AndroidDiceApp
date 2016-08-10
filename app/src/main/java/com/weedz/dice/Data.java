@@ -26,8 +26,9 @@ public class Data extends Observable {
     public static final int FLAG_DIEBAG_UPDATE = 0;
     public static final int FLAG_DICE_ROLL = 1;
     public static final int FLAG_THREAD_LOCK = 2;
+    public static final int FLAG_INTERRUPTED = 3;
     // flags
-    private Boolean[] flags = new Boolean[3];
+    private Boolean[] flags = new Boolean[4];
 
     private volatile ArrayList<Integer> dice;
     // Different sized dice
@@ -180,9 +181,10 @@ public class Data extends Observable {
         if (mRollThread != null) {
             mRollThread.interrupt();
             mRollThread = null;
+        } else {
+            mRollThread = new RollThread();
+            mRollThread.start();
         }
-        mRollThread = new RollThread();
-        mRollThread.start();
     }
 
     public int getLargestDie() {
@@ -198,11 +200,15 @@ public class Data extends Observable {
         @Override
         public void handleMessage(Message msg) {
             if(msg == null) {
-                //Log.d(TAG, "RollHandler() msg == null");
+                Log.d(TAG, "RollHandler() msg == null");
                 return;
             }
             if (!Thread.currentThread().isInterrupted()) {
                 switch (msg.what) {
+                    case 0:
+                        ref.get().setFlag(FLAG_INTERRUPTED, true);
+                        ref.get().setUpdate();
+                        break;
                     case 1: // Roll finished
                         ref.get().setFlag(FLAG_DICE_ROLL, true);
                         ref.get().setUpdate();
@@ -219,15 +225,19 @@ public class Data extends Observable {
             int roll;
             total = 0;
 
-            Iterator<Integer> iterator = multiDice.keySet().iterator();
+            /*Iterator<Integer> iterator = multiDice.keySet().iterator();
             while(iterator.hasNext()) {
+                if (Thread.interrupted()) {
+                    handler.sendEmptyMessage(1);
+                    return;
+                }
                 Integer key = iterator.next();
                 for (int j = 0; j < multiDice.get(key).size(); j++) {
                     roll = (int)(Math.random()*key+1);
                     total += roll;
                     multiDice.get(key).set(j, roll);
                 }
-            }
+            }*/
 
             // Java 8, Android API 24
             /*multiDice.forEach((k,v)->{
@@ -236,14 +246,21 @@ public class Data extends Observable {
                 }
                 //System.out.println(k + " - " + v.toString());
             });*/
-
-
             // Single size dice
             total = 0;
             for(int i = 0; i < dice.size(); i++) {
+                if (Thread.interrupted()) {
+                    handler.sendEmptyMessage(0);
+                    return;
+                }
                 roll = (int) (Math.random() * Data.getInstance().getLargestDie() + 1);
+                if (dice.size() >= i) {
+                    dice.set(i, roll);
+                } else {
+                    handler.sendEmptyMessage(0);
+                    return;
+                }
                 total += roll;
-                dice.set(i, roll);
             }
 
             handler.sendEmptyMessage(1);

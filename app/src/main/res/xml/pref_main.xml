@@ -8,12 +8,25 @@
             android:key="pref_settings_detailed_roll"
             android:title="Detailed roll"
             android:summary="May cause lag"
-            android:defaultValue="true" />
+            android:defaultValue="false" />
+
+        <EditTextPreference
+            android:key="pref_settings_detailed_roll_thread_font_size"
+            android:dependency="pref_settings_detailed_roll"
+            android:title="Detailed roll font size"
+            android:defaultValue="19"
+            android:inputType="numberDecimal" />
         <EditTextPreference
             android:key="pref_settings_detailed_roll_thread_sleep"
             android:dependency="pref_settings_detailed_roll"
             android:title="Detailed roll thread sleep"
             android:defaultValue="10"
+            android:inputType="number" />
+        <EditTextPreference
+            android:key="pref_Settings_detailed_roll_buffer"
+            android:dependency="pref_settings_detailed_roll"
+            android:title="Detailed roll buffer"
+            android:defaultValue="100"
             android:inputType="number" />
     </PreferenceCategory>
 
@@ -25,13 +38,27 @@
             android:title="Roll Summary"
             android:summary="May cause lag"
             android:defaultValue="true" />
+
+        <EditTextPreference
+            android:key="pref_settings_summary_font_size"
+            android:dependency="pref_settings_summary"
+            android:title="Summary font size"
+            android:defaultValue="20"
+            android:inputType="numberDecimal" />
         <EditTextPreference
             android:key="pref_settings_summary_thread_sleep"
             android:dependency="pref_settings_summary"
             android:title="Summary thread sleep"
-            android:defaultValue="10"
+            android:defaultValue="5"
+            android:inputType="number" />
+        <EditTextPreference
+            android:key="pref_Settings_summary_buffer"
+            android:dependency="pref_settings_summary"
+            android:title="Summary buffer"
+            android:defaultValue="100"
             android:inputType="number" />
     </PreferenceCategory>
+
     <PreferenceCategory
         android:key="pref_category_summary_table"
         android:title="Roll summary table settings">
@@ -45,7 +72,7 @@
             android:key="pref_settings_create_summary_thread_sleep"
             android:dependency="pref_settings_summary"
             android:title="Create summary table thread sleep"
-            android:defaultValue="10"
+            android:defaultValue="5"
             android:inputType="number" />
         <EditTextPreference
             android:key="pref_settings_create_summary_row_buffer"
