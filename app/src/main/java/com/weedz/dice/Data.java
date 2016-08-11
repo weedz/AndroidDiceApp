@@ -64,6 +64,97 @@ public class Data extends Observable {
         flags[flag] = b;
     }
 
+    // MultiDice
+    public synchronized void addMultiDice(int nr, int sides) {
+        if (mRollThread != null && mRollThread.isAlive()) {
+            mRollThread.interrupt();
+        }
+        if (multiDice.get(sides) == null) {
+            multiDice.put(sides, new ArrayList<Integer>());
+        }
+
+        multiDice.get(sides).addAll(Arrays.asList(new Integer[nr]));
+
+        //Log.d(TAG, "AddDice(): " + multiDice.toString());
+
+        setFlag(FLAG_DICESET_UPDATE, true);
+        setUpdate();
+    }
+    public synchronized void removeMultiDice(int nr, int sides) {
+        if (mRollThread != null && mRollThread.isAlive()) {
+            mRollThread.interrupt();
+        }
+        if (multiDice.get(sides) != null) {
+            int count = 0;
+            while(count < nr) {
+                multiDice.get(sides).remove(0);
+                if (multiDice.get(sides).size() == 0) {
+                    multiDice.remove(sides);
+                    break;
+                }
+                count++;
+            }
+        }
+        setFlag(FLAG_DICESET_UPDATE, true);
+        setUpdate();
+    }
+    public synchronized void setMultiDice(int nr, int sides) {
+        largestDie = sides;
+        if (flags[FLAG_THREAD_LOCK]) {
+            Log.d(TAG,"setDice(): ThreadLock");
+            return;
+        }
+        if (mRollThread != null && mRollThread.isAlive()) {
+            mRollThread.interrupt();
+        }
+        multiDice.clear();
+        addMultiDice(nr, sides);
+    }
+    public synchronized int getMultiDie(int sides, int i) {
+        if (mRollThread != null && mRollThread.isAlive()) {
+            //Log.d(TAG, "getDie(): interrupt");
+            mRollThread.interrupt();
+        }
+        if (multiDice.get(sides) != null) {
+            return multiDice.get(sides).get(i);
+        }
+
+        return 0;
+    }
+    public synchronized ConcurrentHashMap<Integer, ArrayList<Integer>> getMultiDice() {
+        return multiDice;
+    }
+    public int getMultiNrOfDice() {
+        //Iterator<Integer> iterator = multiDice.keySet().iterator();
+        int total = 0;
+
+        for (Integer key :
+                multiDice.keySet()) {
+            if (Thread.interrupted()) {
+                handler.sendEmptyMessage(1);
+                return 0;
+            }
+            total += multiDice.get(key).size();
+        }
+
+        /*while(iterator.hasNext()) {
+            if (Thread.interrupted()) {
+                handler.sendEmptyMessage(1);
+                return 0;
+            }
+            Integer key = iterator.next();
+            total += multiDice.get(key).size();
+        }*/
+        return total;
+    }
+    public int getMultiNrOfDice(int sides) {
+        if (multiDice.get(sides) != null) {
+            return multiDice.get(sides).size();
+        }
+        return 0;
+    }
+
+    // Single dice
     public synchronized void addDice(int nr, int sides) {
         if (flags[FLAG_THREAD_LOCK]) {
             Log.d(TAG,"addDice(): ThreadLock");
@@ -72,21 +163,7 @@ public class Data extends Observable {
         if (mRollThread != null && mRollThread.isAlive()) {
             mRollThread.interrupt();
         }
-        /*if (nr > 10000-dice.size()) {
-            nr = 10000-dice.size();
-        }*/
         dice.addAll(Arrays.asList(new Integer[nr]));
-        setFlag(FLAG_DICESET_UPDATE, true);
-        setUpdate();
-    }
-    public synchronized void addMultiDice(int nr, int sides) {
-        if (mRollThread != null && mRollThread.isAlive()) {
-            mRollThread.interrupt();
-        }
-        if (multiDice.get(sides) == null) {
-            multiDice.put(sides, new ArrayList<Integer>());
-        }
-        multiDice.get(sides).addAll(Arrays.asList(new Integer[nr]));
         setFlag(FLAG_DICESET_UPDATE, true);
         setUpdate();
     }
@@ -109,30 +186,8 @@ public class Data extends Observable {
         setFlag(FLAG_DICESET_UPDATE, true);
         setUpdate();
     }
-    public synchronized void removeMultiDice(int nr, int sides) {
-        if (mRollThread != null && mRollThread.isAlive()) {
-            mRollThread.interrupt();
-        }
-        if (multiDice.get(sides) != null) {
-            Iterator<Integer> iterator = multiDice.keySet().iterator();
-            int count = 0;
-            while(iterator.hasNext()) {
-
-                iterator.next();
-
-                iterator.remove();
-                count++;
-                if(count >= nr) {
-                    break;
-                }
-            }
-        }
-    }
 
     public synchronized void setDice(int nr, int sides) {
-        /*if (sides > 500) {
-            sides = 500;
-        }*/
         largestDie = sides;
         if (flags[FLAG_THREAD_LOCK]) {
             Log.d(TAG,"setDice(): ThreadLock");
@@ -143,18 +198,6 @@ public class Data extends Observable {
         }
         dice.clear();
         addDice(nr, sides);
-    }
-    public synchronized void setMultiDice(int nr, int sides) {
-        largestDie = sides;
-        if (flags[FLAG_THREAD_LOCK]) {
-            Log.d(TAG,"setDice(): ThreadLock");
-            return;
-        }
-        if (mRollThread != null && mRollThread.isAlive()) {
-            mRollThread.interrupt();
-        }
-        multiDice.clear();
-        addMultiDice(nr, sides);
     }
 
     public int getTotal() {
@@ -225,19 +268,14 @@ public class Data extends Observable {
             int roll;
             total = 0;
 
-            /*Iterator<Integer> iterator = multiDice.keySet().iterator();
-            while(iterator.hasNext()) {
-                if (Thread.interrupted()) {
-                    handler.sendEmptyMessage(1);
-                    return;
-                }
-                Integer key = iterator.next();
+            for (Integer key :
+                    multiDice.keySet()) {
                 for (int j = 0; j < multiDice.get(key).size(); j++) {
                     roll = (int)(Math.random()*key+1);
                     total += roll;
                     multiDice.get(key).set(j, roll);
                 }
-            }*/
+            }
 
             // Java 8, Android API 24
             /*multiDice.forEach((k,v)->{
@@ -246,8 +284,9 @@ public class Data extends Observable {
                 }
                 //System.out.println(k + " - " + v.toString());
             });*/
+
             // Single size dice
-            total = 0;
+            /*total = 0;
             for(int i = 0; i < dice.size(); i++) {
                 if (Thread.interrupted()) {
                     handler.sendEmptyMessage(0);
@@ -261,7 +300,7 @@ public class Data extends Observable {
                     return;
                 }
                 total += roll;
-            }
+            }*/
 
             handler.sendEmptyMessage(1);
             synchronized (Data.this) {

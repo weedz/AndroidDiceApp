@@ -14,7 +14,6 @@ public class SettingsActivity extends AppCompatActivity implements SettingsFragm
     protected void onCreate(Bundle savedInstanceState) {
         SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(this);
         ViewUtils.ApplyTheme(this, pref);
-        Log.d(TAG, "" + resourceState);
 
         if (savedInstanceState != null) {
             resourceState = savedInstanceState.getInt("resourceState");
