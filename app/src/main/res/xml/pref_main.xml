@@ -86,8 +86,9 @@
         android:title="UI Settings"
         android:key="pref_category_ui">
         <SwitchPreference
-            android:key="pref_settings_darktheme"
+            android:key="pref_settings_dark_theme"
             android:title="Dark app theme"
+            android:summary="Restart the app after changing theme"
             android:defaultValue="false" />
     </PreferenceCategory>
 

@@ -3,7 +3,6 @@ package com.weedz.dice;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceFragment;
-import android.util.Log;
 
 /**
  * Created by WeeDz on 2016-08-08.
@@ -35,8 +34,10 @@ public class SettingsFragment extends PreferenceFragment implements SharedPrefer
     }
 
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-        if (key.equals("pref_settings_darktheme")) {
+        if (key.equals("pref_settings_dark_theme")) {
             // Apply dark theme
+            getActivity().setTheme(R.style.AppThemeDark);
+            getActivity().recreate();
         }
     }
 

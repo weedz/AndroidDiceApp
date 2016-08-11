@@ -23,7 +23,7 @@ public class Data extends Observable {
     }
 
     // Flag values
-    public static final int FLAG_DIEBAG_UPDATE = 0;
+    public static final int FLAG_DICESET_UPDATE = 0;
     public static final int FLAG_DICE_ROLL = 1;
     public static final int FLAG_THREAD_LOCK = 2;
     public static final int FLAG_INTERRUPTED = 3;
@@ -76,7 +76,7 @@ public class Data extends Observable {
             nr = 10000-dice.size();
         }*/
         dice.addAll(Arrays.asList(new Integer[nr]));
-        setFlag(FLAG_DIEBAG_UPDATE, true);
+        setFlag(FLAG_DICESET_UPDATE, true);
         setUpdate();
     }
     public synchronized void addMultiDice(int nr, int sides) {
@@ -87,7 +87,7 @@ public class Data extends Observable {
             multiDice.put(sides, new ArrayList<Integer>());
         }
         multiDice.get(sides).addAll(Arrays.asList(new Integer[nr]));
-        setFlag(FLAG_DIEBAG_UPDATE, true);
+        setFlag(FLAG_DICESET_UPDATE, true);
         setUpdate();
     }
 
@@ -106,7 +106,7 @@ public class Data extends Observable {
                 break;
             }
         }
-        setFlag(FLAG_DIEBAG_UPDATE, true);
+        setFlag(FLAG_DICESET_UPDATE, true);
         setUpdate();
     }
     public synchronized void removeMultiDice(int nr, int sides) {

@@ -43,14 +43,18 @@ public class MainActivity extends AppCompatActivity implements Observer {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        pref = PreferenceManager.getDefaultSharedPreferences(this);
+        // Set default values for settings
+        PreferenceManager.setDefaultValues(this, R.xml.pref_main, false);
+        if (pref.getBoolean("pref_settings_dark_theme", false)) {
+            //setTheme(R.style.AppThemeDark);
+            onApplyThemeResource(getTheme(), R.style.AppThemeDark, false);
+        }
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar)findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
-        pref = PreferenceManager.getDefaultSharedPreferences(this);
-        // Set default values for settings
-        PreferenceManager.setDefaultValues(this, R.xml.pref_main, false);
 
         Button bt_add_die = (Button)findViewById(R.id.add_die_button);
         bt_add_die.setOnClickListener(new View.OnClickListener() {
@@ -167,6 +171,7 @@ public class MainActivity extends AppCompatActivity implements Observer {
             }
         });
 
+        showDices();
         Data.getInstance().addObserver(this);
     }
 
@@ -493,7 +498,6 @@ public class MainActivity extends AppCompatActivity implements Observer {
     @Override
     protected void onResume() {
         //Log.d(TAG, "onResume()");
-        showDices();
         Data.getInstance().addObserver(this);
         super.onResume();
     }
@@ -532,7 +536,7 @@ public class MainActivity extends AppCompatActivity implements Observer {
             diceRolled();
             Data.getInstance().setFlag(Data.FLAG_DICE_ROLL, false);
         }
-        if (Data.getInstance().getFlag(Data.FLAG_DIEBAG_UPDATE)) {
+        if (Data.getInstance().getFlag(Data.FLAG_DICESET_UPDATE)) {
             showDices();
             Data.getInstance().setFlag(Data.FLAG_DICE_ROLL, false);
         }
