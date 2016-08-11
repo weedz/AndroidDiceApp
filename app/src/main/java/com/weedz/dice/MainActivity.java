@@ -43,13 +43,11 @@ public class MainActivity extends AppCompatActivity implements Observer {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        //Log.d(TAG, "onCreate()");
         pref = PreferenceManager.getDefaultSharedPreferences(this);
         // Set default values for settings
         PreferenceManager.setDefaultValues(this, R.xml.pref_main, false);
-        if (pref.getBoolean("pref_settings_dark_theme", false)) {
-            //setTheme(R.style.AppThemeDark);
-            onApplyThemeResource(getTheme(), R.style.AppThemeDark, false);
-        }
+        ViewUtils.ApplyTheme(this, pref);
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
@@ -186,11 +184,22 @@ public class MainActivity extends AppCompatActivity implements Observer {
         switch (item.getItemId()) {
             case R.id.action_settings: {
                 Intent intent = new Intent(this, SettingsActivity.class);
-                startActivity(intent);
+                startActivityForResult(intent, 1);
                 break;
             }
         }
         return super.onOptionsItemSelected(item);
+    }
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        // Settings activity
+        if (requestCode == 1) {
+            // Resources updated
+            if (resultCode == 1) {
+                recreate();
+            }
+        }
+        super.onActivityResult(requestCode, resultCode, data);
     }
 
     static class RollUpdateUIHandler extends Handler {
@@ -495,15 +504,23 @@ public class MainActivity extends AppCompatActivity implements Observer {
         dice.setText("Dice: " + Data.getInstance().getNrOfDie() + "d" + Data.getInstance().getLargestDie());
     }
 
-    @Override
+    /*@Override
     protected void onResume() {
-        //Log.d(TAG, "onResume()");
+        Log.d(TAG, "onResume()");
         Data.getInstance().addObserver(this);
         super.onResume();
-    }
+    }*/
+
     @Override
+    protected void onStart() {
+        //Log.d(TAG, "onStart()");
+        Data.getInstance().addObserver(this);
+        super.onStart();
+    }
+
+    /*@Override
     protected void onPause() {
-        //Log.d(TAG, "onPause()");
+        Log.d(TAG, "onPause()");
         if (mRollUpdateThread != null) {
             mRollUpdateThread.interrupt();
             mRollUpdateThread = null;
@@ -514,7 +531,8 @@ public class MainActivity extends AppCompatActivity implements Observer {
         }
         Data.getInstance().deleteObserver(this);
         super.onPause();
-    }
+    }*/
+
     @Override
     protected void onStop() {
         //Log.d(TAG, "onStop()");
