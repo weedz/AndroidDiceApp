@@ -1,13 +1,17 @@
 package com.weedz.dice;
 
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceFragment;
 
-/**
- * Created by WeeDz on 2016-08-08.
- */
 public class SettingsFragment extends PreferenceFragment implements SharedPreferences.OnSharedPreferenceChangeListener {
+    public interface OnResourceUpdatedListener {
+        void onResourceUpdated();
+    }
+
+    OnResourceUpdatedListener mListener;
+
     private static final String TAG = "SettingsFragment";
 
     @Override
@@ -17,6 +21,12 @@ public class SettingsFragment extends PreferenceFragment implements SharedPrefer
 
         // set texts correctly
         onSharedPreferenceChanged(null, "");
+    }
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        mListener = (OnResourceUpdatedListener) context;
     }
 
     @Override
@@ -35,11 +45,9 @@ public class SettingsFragment extends PreferenceFragment implements SharedPrefer
 
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
         if (key.equals("pref_settings_dark_theme")) {
-            // Apply dark theme
-            getActivity().setTheme(R.style.AppThemeDark);
             getActivity().recreate();
+            mListener.onResourceUpdated();
         }
     }
-
 
 }
