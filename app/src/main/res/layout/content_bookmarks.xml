@@ -18,8 +18,8 @@
         android:id="@+id/scrollView3"
         android:fillViewport="true"
         android:layout_alignParentTop="true"
-        android:layout_above="@+id/bookmarks_actions_button"
-        android:focusable="false">
+        android:focusable="false"
+        android:layout_above="@+id/bookmarks_save_name_editbox">
 
         <ListView
             android:layout_width="match_parent"
@@ -54,5 +54,13 @@
         android:id="@+id/bookmarks_clear_button"
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true" />
+
+    <EditText
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/bookmarks_save_name_editbox"
+        android:layout_above="@+id/bookmarks_save_button"
+        android:layout_alignParentEnd="true"
+        android:layout_alignStart="@+id/bookmarks_save_button" />
 
 </RelativeLayout>

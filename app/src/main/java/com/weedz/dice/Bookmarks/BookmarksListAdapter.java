@@ -20,14 +20,16 @@ public class BookmarksListAdapter extends ArrayAdapter<String> {
     private static final String TAG = "BookmarksListAdapter";
 
     private final Context context;
+    private final ArrayList<String> name;
     private final ArrayList<String> values;
     private final ArrayList<ArrayList<Integer>> nr;
     private final ArrayList<ArrayList<Integer>> sides;
 
 
-    public BookmarksListAdapter(Context context, int resId, ArrayList<String> values, ArrayList<ArrayList<Integer>> sidesList, ArrayList<ArrayList<Integer>> nrList) {
+    public BookmarksListAdapter(Context context, int resId,ArrayList<String> values, ArrayList<String> name, ArrayList<ArrayList<Integer>> sidesList, ArrayList<ArrayList<Integer>> nrList) {
         super(context, resId, values);
         this.context = context;
+        this.name = name;
         this.values = values;
         nr = nrList;
         sides = sidesList;
@@ -42,7 +44,7 @@ public class BookmarksListAdapter extends ArrayAdapter<String> {
 
         TextView saveName = (TextView) rowView.findViewById(R.id.bookmarks_row_save_name);
         TextView saveData = (TextView) rowView.findViewById(R.id.bookmarks_row_save_data);
-        saveName.setText(values.get(position));
+        saveName.setText(name.get(position));
 
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < nr.get(position).size(); i++) {

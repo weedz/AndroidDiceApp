@@ -11,7 +11,9 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.CompoundButton;
+import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.Toast;
 import android.widget.ToggleButton;
 
 import com.weedz.dice.Data;
@@ -65,15 +67,18 @@ public class BookmarksActivity extends AppCompatActivity {
                 sortOrder
         );
 
+
         final ArrayList<String> nameList = new ArrayList<>();
+        final ArrayList<String> idList = new ArrayList<>();
         final ArrayList<ArrayList<Integer>> nrList = new ArrayList<>();
         final ArrayList<ArrayList<Integer>> sidesList = new ArrayList<>();
-        if (c.getCount() != 0) {
+        if (c.getCount() > 0) {
 
             // ObjectStream
             ByteArrayInputStream bis;
             ObjectInput in;
             while (c.moveToNext()) {
+                idList.add(c.getString(0));
                 nameList.add(c.getString(1));
 
                 try {
@@ -94,7 +99,7 @@ public class BookmarksActivity extends AppCompatActivity {
             }
         }
         db.close();
-        final BookmarksListAdapter adapter = new BookmarksListAdapter(this, R.layout.bookmarks_row_layout, nameList, sidesList, nrList);
+        final BookmarksListAdapter adapter = new BookmarksListAdapter(this, R.layout.bookmarks_row_layout, idList, nameList, sidesList, nrList);
         bookmarksList.setAdapter(adapter);
 
         Button save = (Button)findViewById(R.id.bookmarks_save_button);
@@ -119,13 +124,6 @@ public class BookmarksActivity extends AppCompatActivity {
                     sidesArray.add(key);
                 }
 
-                String name = "" + System.currentTimeMillis();
-
-                // Update ListView
-                nrList.add(nrArray);
-                sidesList.add(sidesArray);
-                nameList.add(name);
-
                 // ObjectStream
                 ByteArrayOutputStream bos;
                 ObjectOutput out;
@@ -147,6 +145,11 @@ public class BookmarksActivity extends AppCompatActivity {
                     return;
                 }
 
+                EditText nameBox = (EditText)findViewById(R.id.bookmarks_save_name_editbox);
+                String name = nameBox.getText().toString();
+                if (name.equals("")) {
+                    name = "DiceSet";
+                }
                 ContentValues values = new ContentValues();
                 values.put(SQLiteHelper.FeedEntry.COLUMN_NAME_SAVE_NAME, name);
                 values.put(SQLiteHelper.FeedEntry.COLUMN_NAME_SAVE_NR, nrBytes);
@@ -158,6 +161,12 @@ public class BookmarksActivity extends AppCompatActivity {
                         values
                 );
                 db.close();
+
+                // Update ListView
+                nrList.add(nrArray);
+                sidesList.add(sidesArray);
+                nameList.add(name);
+                idList.add(newRowId.toString());
 
                 adapter.notifyDataSetChanged();
             }
@@ -179,6 +188,7 @@ public class BookmarksActivity extends AppCompatActivity {
                 SQLiteDatabase db = mDBHelper.getReadableDatabase();
                 db.execSQL("DELETE FROM " + SQLiteHelper.FeedEntry.TABLE_NAME);
                 db.close();
+                idList.clear();
                 nameList.clear();
                 nrList.clear();
                 sidesList.clear();
@@ -189,9 +199,8 @@ public class BookmarksActivity extends AppCompatActivity {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View item, int position, long l) {
 
-
                 // TODO: Add confirmation
-                String name = adapter.getItem(position);
+                String id = adapter.getItem(position);
                 SQLiteHelper mDBHelper = new SQLiteHelper(getApplicationContext());
                 SQLiteDatabase db = mDBHelper.getReadableDatabase();
                 if (actionChecked) {
@@ -205,38 +214,35 @@ public class BookmarksActivity extends AppCompatActivity {
                     Cursor c = db.query(
                             SQLiteHelper.FeedEntry.TABLE_NAME,
                             returnValues,
-                            SQLiteHelper.FeedEntry.COLUMN_NAME_SAVE_NAME + " = ?",
-                            new String[]{name},
+                            SQLiteHelper.FeedEntry.COLUMN_NAME_ENTRY_ID + " = ?",
+                            new String[]{id},
                             null,
                             null,
                             null
                     );
 
                     if (c.getCount() != 0) {
-                        ArrayList<String> nameList = new ArrayList<>();
                         ArrayList<Integer> nrList = new ArrayList<>();
                         ArrayList<Integer> sidesList = new ArrayList<>();
 
                         // ObjectStream
                         ByteArrayInputStream bis;
                         ObjectInput in;
-                        while (c.moveToNext()) {
-                            nameList.add(c.getString(1));
+                        c.moveToNext();
 
-                            try {
-                                bis = new ByteArrayInputStream(c.getBlob(2));
-                                in = new ObjectInputStream(bis);
-                                nrList = (ArrayList<Integer>)in.readObject();
-                                bis.reset();
-                                bis = new ByteArrayInputStream(c.getBlob(3));
-                                in = new ObjectInputStream(bis);
-                                sidesList = (ArrayList<Integer>)in.readObject();
-                            } catch (IOException e) {
-                                e.printStackTrace();
-                                return;
-                            } catch (ClassNotFoundException e) {
-                                e.printStackTrace();
-                            }
+                        try {
+                            bis = new ByteArrayInputStream(c.getBlob(2));
+                            in = new ObjectInputStream(bis);
+                            nrList = (ArrayList<Integer>)in.readObject();
+                            bis.reset();
+                            bis = new ByteArrayInputStream(c.getBlob(3));
+                            in = new ObjectInputStream(bis);
+                            sidesList = (ArrayList<Integer>)in.readObject();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                            return;
+                        } catch (ClassNotFoundException e) {
+                            e.printStackTrace();
                         }
                         // set multidice
                         Data.getInstance().setMultiDice(0,0);
@@ -244,6 +250,7 @@ public class BookmarksActivity extends AppCompatActivity {
                             Data.getInstance().addMultiDice(nrList.get(i),
                                     sidesList.get(i));
                         }
+                        Toast.makeText(BookmarksActivity.this, c.getString(1) + " Loaded", Toast.LENGTH_SHORT).show();
                     } else {
                         Log.d(TAG, "Empty return for entry_id " + position);
                     }
@@ -251,10 +258,11 @@ public class BookmarksActivity extends AppCompatActivity {
                     // Remove
                     db.delete(
                             SQLiteHelper.FeedEntry.TABLE_NAME,
-                            SQLiteHelper.FeedEntry.COLUMN_NAME_SAVE_NAME + " = ?",
-                            new String[]{name}
+                            SQLiteHelper.FeedEntry.COLUMN_NAME_ENTRY_ID + " = ?",
+                            new String[]{id}
                     );
                     db.close();
+                    idList.remove(position);
                     nameList.remove(position);
                     nrList.remove(position);
                     sidesList.remove(position);
