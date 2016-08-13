@@ -11,7 +11,7 @@ public class SettingsFragment extends PreferenceFragment implements SharedPrefer
         void onResourceUpdated();
     }
 
-    OnResourceUpdatedListener mListener;
+    private OnResourceUpdatedListener mListener;
 
     private static final String TAG = "SettingsFragment";
 

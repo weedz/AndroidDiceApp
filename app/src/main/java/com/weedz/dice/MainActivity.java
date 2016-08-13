@@ -31,14 +31,14 @@ public class MainActivity extends AppCompatActivity implements Observer {
     private static final String TAG = "HomeActivity";
 
     // IDs
-    private int summaryTextFieldStart = 0x000000ff;
+    private final int summaryTextFieldStart = 0x000000ff;
 
     // Threading stuff
     private RollUpdateUIThread mRollUpdateThread;
     private PopulateSummaryTableThread mSummaryUpdateThread;
     private UpdateTableThread mUpdateTableThread;
-    WeakReference<MainActivity> ref = new WeakReference<>(this);
-    RollUpdateUIHandler handler = new RollUpdateUIHandler(ref);
+    private WeakReference<MainActivity> ref = new WeakReference<>(this);
+    private RollUpdateUIHandler handler = new RollUpdateUIHandler(ref);
 
     private SharedPreferences pref;
 
@@ -222,6 +222,7 @@ public class MainActivity extends AppCompatActivity implements Observer {
                     TableLayout tl = (TableLayout)ref.get().findViewById(R.id.dice_summary);
                     TableRow tr = new TableRow(ref.get());
                     TextView textView = new TextView(ref.get());
+                    //noinspection deprecation
                     textView.setTextAppearance(ref.get().getApplicationContext(), android.R.style.TextAppearance_DeviceDefault_Medium);
                     //textView.setTextAppearance(android.R.style.TextAppearance_Material_Medium);
                     textView.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
@@ -402,6 +403,7 @@ public class MainActivity extends AppCompatActivity implements Observer {
                 tv = new TextView[1];
                 tv[0] = new TextView(ref.get());
                 tv[0].setGravity(Gravity.CENTER_HORIZONTAL);
+                //noinspection deprecation
                 tv[0].setTextAppearance(getApplicationContext(), android.R.style.TextAppearance_DeviceDefault_Medium);
                 //tv[0].setTextAppearance(android.R.style.TextAppearance_Material_Medium);
                 tv[0].setTypeface(null, Typeface.BOLD);
@@ -423,6 +425,7 @@ public class MainActivity extends AppCompatActivity implements Observer {
                         }
                         tv[j] = new TextView(ref.get());
                         tv[j].setGravity(Gravity.CENTER_HORIZONTAL);
+                        //noinspection deprecation
                         tv[j].setTextAppearance(getApplicationContext(), android.R.style.TextAppearance_DeviceDefault_Medium);
                         //tv[j].setTextAppearance(android.R.style.TextAppearance_Material_Medium);
                         tv[j].setTypeface(null, Typeface.NORMAL);
@@ -468,7 +471,7 @@ public class MainActivity extends AppCompatActivity implements Observer {
 
     // TODO: add buttons for disabled features
     private synchronized void diceRolled() {
-        int total = Data.getInstance().getmTotal();
+        int total = Data.getInstance().getTotal();
         TextView total_result = (TextView)findViewById(R.id.total_result);
         total_result.setText(String.valueOf(total));
 

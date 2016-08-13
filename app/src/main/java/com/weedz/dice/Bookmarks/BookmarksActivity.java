@@ -98,6 +98,7 @@ public class BookmarksActivity extends AppCompatActivity {
 
             }
         }
+        c.close();
         db.close();
         final BookmarksListAdapter adapter = new BookmarksListAdapter(this, R.layout.bookmarks_row_layout, idList, nameList, sidesList, nrList);
         bookmarksList.setAdapter(adapter);
@@ -254,6 +255,7 @@ public class BookmarksActivity extends AppCompatActivity {
                     } else {
                         Log.d(TAG, "Empty return for entry_id " + position);
                     }
+                    c.close();
                 } else {
                     // Remove
                     db.delete(

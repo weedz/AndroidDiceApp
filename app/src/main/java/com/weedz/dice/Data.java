@@ -33,10 +33,9 @@ public class Data extends Observable {
     private ConcurrentHashMap<Integer, ArrayList<Integer>> multiDice;
 
     private int mTotal = 0;
-    private int largestDie = 6;
 
     private RollThread mRollThread;
-    WeakReference<Data> ref = new WeakReference<>(this);
+    private WeakReference<Data> ref = new WeakReference<>(this);
     private RollHandler handler = new RollHandler(ref);
 
     private Data() {
@@ -99,7 +98,6 @@ public class Data extends Observable {
         setUpdate();
     }
     public synchronized void setMultiDice(int nr, int sides) {
-        largestDie = sides;
         if (mRollThread != null && mRollThread.isAlive()) {
             mRollThread.interrupt();
         }
@@ -144,7 +142,7 @@ public class Data extends Observable {
         return 0;
     }
 
-    public int getmTotal() {
+    public int getTotal() {
         return mTotal;
     }
 

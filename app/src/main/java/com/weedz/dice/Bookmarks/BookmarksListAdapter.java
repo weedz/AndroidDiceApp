@@ -14,7 +14,7 @@ import java.util.ArrayList;
 /**
  * Created by WeeDz on 2016-08-12.
  */
-public class BookmarksListAdapter extends ArrayAdapter<String> {
+class BookmarksListAdapter extends ArrayAdapter<String> {
 
     private static final String TAG = "BookmarksListAdapter";
 
@@ -25,7 +25,7 @@ public class BookmarksListAdapter extends ArrayAdapter<String> {
     private final ArrayList<ArrayList<Integer>> sides;
 
 
-    public BookmarksListAdapter(Context context, int resId,ArrayList<String> values, ArrayList<String> name, ArrayList<ArrayList<Integer>> sidesList, ArrayList<ArrayList<Integer>> nrList) {
+    public BookmarksListAdapter(Context context, int resId, ArrayList<String> values, ArrayList<String> name, ArrayList<ArrayList<Integer>> sidesList, ArrayList<ArrayList<Integer>> nrList) {
         super(context, resId, values);
         this.context = context;
         this.name = name;

@@ -213,9 +213,11 @@
 
                 <TableRow
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent">
+                    android:layout_height="match_parent"
+                    style="?android:attr/buttonBarStyle">
 
                     <Button
+                        style="?android:attr/buttonBarButtonStyle"
                         android:text="@string/add_die_bt"
                         android:id="@+id/add_die_button"
                         android:layout_column="0"
@@ -223,6 +225,7 @@
                         android:singleLine="false" />
 
                     <Button
+                        style="?android:attr/buttonBarButtonStyle"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/set_bt"
@@ -231,6 +234,7 @@
                         android:layout_span="2" />
 
                     <Button
+                        style="?android:attr/buttonBarButtonStyle"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/remove_die_bt"

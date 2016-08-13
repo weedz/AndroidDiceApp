@@ -20,7 +20,6 @@
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:text="SAVENAME"
         android:id="@+id/bookmarks_row_save_name"
-        android:phoneNumber="false"
         android:singleLine="false"
         android:layout_below="@+id/bookmarks_row_save_data"
         android:layout_alignParentStart="true" />

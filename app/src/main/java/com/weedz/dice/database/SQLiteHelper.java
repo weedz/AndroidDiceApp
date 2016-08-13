@@ -12,8 +12,8 @@ import android.util.Log;
 public class SQLiteHelper extends SQLiteOpenHelper {
     private static final String TAG = "SQLiteHelper";
 
-    public static final int DATABASE_VERSION = 7;
-    public static final String DATABASE_NAME = "bookmarks.db";
+    private static final int DATABASE_VERSION = 8;
+    private static final String DATABASE_NAME = "bookmarks.db";
 
     /* Inner class that defines the table contents */
     public static abstract class FeedEntry implements BaseColumns {
@@ -22,7 +22,6 @@ public class SQLiteHelper extends SQLiteOpenHelper {
         public static final String COLUMN_NAME_SAVE_NAME = "save_name";
         public static final String COLUMN_NAME_SAVE_NR = "save_nr";
         public static final String COLUMN_NAME_SAVE_SIDES = "save_sides";
-        public static final String COLUMN_NAME_SAVE_DATA = "save_data";
     }
 
     private static final String SQL_CREATE_ENTRIES =
