@@ -348,7 +348,7 @@ public class MainActivity extends AppCompatActivity implements Observer {
                 if (stringBuilder.length() > 0) {
                     stringBuilder.deleteCharAt(stringBuilder.length() - 1);
                 }
-                stringBuilder.append(")");
+                stringBuilder.append(") ");
             }
 
             // Buffer
@@ -505,12 +505,12 @@ public class MainActivity extends AppCompatActivity implements Observer {
     private void showDices() {
         TextView dice = (TextView) findViewById(R.id.nrOfDice);
 
-        StringBuilder diceSet = new StringBuilder("Dice: (").append(Data.getInstance().getMultiNrOfDice()).append(")");
+        StringBuilder diceSet = new StringBuilder("Dice: (").append(Data.getInstance().getMultiNrOfDice()).append("), ");
         for (Integer key :
                 Data.getInstance().getMultiDice().keySet()) {
-            diceSet.append(Data.getInstance().getMultiDice().get(key).size()).append("d").append(key);
+            diceSet.append(Data.getInstance().getMultiDice().get(key).size()).append("d").append(key).append(", ");
         }
-
+        diceSet.delete(diceSet.length() - 2, diceSet.length() - 1);
         dice.setText(diceSet.toString());
     }
 
