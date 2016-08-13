@@ -219,7 +219,8 @@
                         android:text="@string/add_die_bt"
                         android:id="@+id/add_die_button"
                         android:layout_column="0"
-                        android:layout_span="2" />
+                        android:layout_span="2"
+                        android:singleLine="false" />
 
                     <Button
                         android:layout_width="wrap_content"

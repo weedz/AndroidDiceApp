@@ -1,4 +1,4 @@
-package com.weedz.dice.SQLite;
+package com.weedz.dice.database;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;

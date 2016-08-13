@@ -19,7 +19,7 @@
             android:parentActivityName=".MainActivity"
             android:label="@string/title_activity_settings" />
         <activity
-            android:name=".Bookmarks.BookmarksActivity"
+            android:name=".bookmarks.BookmarksActivity"
             android:label="@string/title_activity_bookmarks"
             android:parentActivityName=".MainActivity" />
     </application>

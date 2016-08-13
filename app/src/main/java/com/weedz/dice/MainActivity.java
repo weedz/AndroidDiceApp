@@ -9,7 +9,6 @@ import android.os.Message;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.util.SparseIntArray;
 import android.view.Gravity;
 import android.view.Menu;
@@ -21,7 +20,7 @@ import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
 
-import com.weedz.dice.Bookmarks.BookmarksActivity;
+import com.weedz.dice.bookmarks.BookmarksActivity;
 
 import java.lang.ref.WeakReference;
 import java.util.Observable;
@@ -223,7 +222,8 @@ public class MainActivity extends AppCompatActivity implements Observer {
                     TableLayout tl = (TableLayout)ref.get().findViewById(R.id.dice_summary);
                     TableRow tr = new TableRow(ref.get());
                     TextView textView = new TextView(ref.get());
-                    textView.setTextAppearance(android.R.style.TextAppearance_Material_Medium);
+                    textView.setTextAppearance(ref.get().getApplicationContext(), android.R.style.TextAppearance_DeviceDefault_Medium);
+                    //textView.setTextAppearance(android.R.style.TextAppearance_Material_Medium);
                     textView.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
                     textView.setGravity(Gravity.CENTER_HORIZONTAL);
                     textView.setTypeface(null, Typeface.NORMAL);
@@ -402,7 +402,8 @@ public class MainActivity extends AppCompatActivity implements Observer {
                 tv = new TextView[1];
                 tv[0] = new TextView(ref.get());
                 tv[0].setGravity(Gravity.CENTER_HORIZONTAL);
-                tv[0].setTextAppearance(android.R.style.TextAppearance_Material_Medium);
+                tv[0].setTextAppearance(getApplicationContext(), android.R.style.TextAppearance_DeviceDefault_Medium);
+                //tv[0].setTextAppearance(android.R.style.TextAppearance_Material_Medium);
                 tv[0].setTypeface(null, Typeface.BOLD);
                 tv[0].setTextSize(TEXT_SIZE);
                 tv[0].setText(Data.getInstance().getMultiNrOfDice(key) + "d" + key);
@@ -422,7 +423,8 @@ public class MainActivity extends AppCompatActivity implements Observer {
                         }
                         tv[j] = new TextView(ref.get());
                         tv[j].setGravity(Gravity.CENTER_HORIZONTAL);
-                        tv[j].setTextAppearance(android.R.style.TextAppearance_Material_Medium);
+                        tv[j].setTextAppearance(getApplicationContext(), android.R.style.TextAppearance_DeviceDefault_Medium);
+                        //tv[j].setTextAppearance(android.R.style.TextAppearance_Material_Medium);
                         tv[j].setTypeface(null, Typeface.NORMAL);
                         tv[j].setTextSize(TEXT_SIZE);
                         if (counter < key) {

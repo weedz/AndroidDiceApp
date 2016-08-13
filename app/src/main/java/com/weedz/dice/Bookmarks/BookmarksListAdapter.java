@@ -1,7 +1,6 @@
-package com.weedz.dice.Bookmarks;
+package com.weedz.dice.bookmarks;
 
 import android.content.Context;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -35,6 +34,7 @@ public class BookmarksListAdapter extends ArrayAdapter<String> {
         sides = sidesList;
     }
 
+    // TODO: Use view holder to improve performance
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         LayoutInflater inflater = (LayoutInflater) context

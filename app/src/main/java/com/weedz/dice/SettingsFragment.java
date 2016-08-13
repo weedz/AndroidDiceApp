@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceFragment;
+import android.widget.Toast;
 
 public class SettingsFragment extends PreferenceFragment implements SharedPreferences.OnSharedPreferenceChangeListener {
     public interface OnResourceUpdatedListener {
@@ -34,6 +35,7 @@ public class SettingsFragment extends PreferenceFragment implements SharedPrefer
         super.onResume();
         // Set up a listener whenever a key changes
         getPreferenceScreen().getSharedPreferences().registerOnSharedPreferenceChangeListener(this);
+        mListener = (OnResourceUpdatedListener)getActivity();
     }
 
     @Override
@@ -46,7 +48,11 @@ public class SettingsFragment extends PreferenceFragment implements SharedPrefer
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
         if (key.equals("pref_settings_dark_theme")) {
             getActivity().recreate();
-            mListener.onResourceUpdated();
+            if (mListener != null) {
+                mListener.onResourceUpdated();
+            } else {
+                Toast.makeText(getActivity(), "Restart app to apply theme", Toast.LENGTH_SHORT).show();
+            }
         }
     }
 
