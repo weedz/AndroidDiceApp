@@ -21,6 +21,8 @@ import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
 
+import com.weedz.dice.Bookmarks.BookmarksActivity;
+
 import java.lang.ref.WeakReference;
 import java.util.Observable;
 import java.util.Observer;
@@ -43,7 +45,6 @@ public class MainActivity extends AppCompatActivity implements Observer {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        //Log.d(TAG, "onCreate()");
         pref = PreferenceManager.getDefaultSharedPreferences(this);
         // Set default values for settings
         PreferenceManager.setDefaultValues(this, R.xml.pref_main, false);
@@ -181,12 +182,17 @@ public class MainActivity extends AppCompatActivity implements Observer {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+        Intent intent;
         switch (item.getItemId()) {
-            case R.id.action_settings: {
-                Intent intent = new Intent(this, SettingsActivity.class);
+            case R.id.action_settings:
+                intent = new Intent(this, SettingsActivity.class);
                 startActivityForResult(intent, 1);
                 break;
-            }
+            case R.id.action_bookmarks:
+                intent = new Intent(this, BookmarksActivity.class);
+                startActivity(intent);
+                break;
+
         }
         return super.onOptionsItemSelected(item);
     }
@@ -227,28 +233,14 @@ public class MainActivity extends AppCompatActivity implements Observer {
                     tl.addView(tr);
                 }
                 // Populate summary table
-                // TODO: Update for multi dice
-
-                /*
-
-                start = 100
-
-                10 * 6 = 60; 160
-                15 * 4 = 60; 160
-
-                (sides * totaldice) + (roll)
-
-                 */
-
                 if (msg.what == 4) {
                     TableLayout tl = (TableLayout)ref.get().findViewById(R.id.dice_summary);
 
                     SparseIntArray dice = (SparseIntArray)msg.obj;
 
+                    int totalDice = Data.getInstance().getMultiNrOfDice();
                     for (int i = 1; i < dice.size(); i++) {
-                        //int viewTag = ref.get().summaryTextFieldStart + (Data.getInstance().getMultiNrOfDice(dice.get(0))) + dice.keyAt(i)-1;
-                        int viewTag = ref.get().summaryTextFieldStart + (dice.get(0) * Data.getInstance().getMultiNrOfDice()) + dice.keyAt(i)-1;
-                        TextView existing = (TextView)tl.findViewWithTag(viewTag);
+                        TextView existing = (TextView)tl.findViewWithTag(ref.get().summaryTextFieldStart + (dice.get(0) * totalDice) + dice.keyAt(i)-1);
                         if (existing != null) {
                             String str = existing.getText().toString();
                             int nr = Integer.parseInt(str.substring(str.indexOf(":") + 1)) + dice.get(dice.keyAt(i));
@@ -294,7 +286,7 @@ public class MainActivity extends AppCompatActivity implements Observer {
                         return;
                     }
                     if (Data.getInstance().getMultiDie(key, i) == 0) {
-                        Log.d(TAG, "PopulateSummaryTableThread(): getMultiDie(" + key + ", " + i + "): IndexOutOfBounds");
+                        //Log.d(TAG, "PopulateSummaryTableThread(): getMultiDie(" + key + ", " + i + "): IndexOutOfBounds");
                         break;
                     }
                     if (dice.get(Data.getInstance().getMultiDie(key, i)) == 0) {
@@ -324,33 +316,6 @@ public class MainActivity extends AppCompatActivity implements Observer {
                 dice.clear();
             }
 
-            // Single dice
-            /*for (int i = 0; i < Data.getInstance().getNrOfDie(); i++) {
-                if (Thread.interrupted()) {
-                    handler.sendEmptyMessage(0);
-                    return;
-                }
-                if (Data.getInstance().getDie(i) == 0) {
-                    Log.d(TAG, "PopulateSummaryTableThread(): getDie(" + i + "):IndexOutOfBounds");
-                    break;
-                }
-
-                if (dice.get(Data.getInstance().getDie(i)) == 0) {
-                    dice.put(Data.getInstance().getDie(i), 1);
-                } else {
-                    dice.put(Data.getInstance().getDie(i), dice.get(Data.getInstance().getDie(i)) + 1);
-                }
-                if (i > 0 && i % BUFFER_LENGTH == 0) {
-                    handler.obtainMessage(4, dice.clone()).sendToTarget();
-                    try {
-                        Thread.sleep(THREAD_SLEEP);
-                    } catch (InterruptedException e) {
-                        handler.sendEmptyMessage(0);
-                        return;
-                    }
-                    dice.clear();
-                }
-            }*/
             handler.obtainMessage(4, dice).sendToTarget();
             synchronized (MainActivity.this) {
                 mSummaryUpdateThread = null;
@@ -364,7 +329,7 @@ public class MainActivity extends AppCompatActivity implements Observer {
             final int BUFFER_LENGTH = Integer.parseInt(ref.get().pref.getString("pref_Settings_detailed_roll_buffer", "100"));
             final int THREAD_SLEEP = Integer.parseInt(ref.get().pref.getString("pref_settings_detailed_roll_thread_sleep", "100"));
 
-            StringBuilder stringBuilder = new StringBuilder(Data.getInstance().getNrOfDie() * 2);
+            StringBuilder stringBuilder = new StringBuilder(Data.getInstance().getMultiNrOfDice() * 2);
             // Multi dice
             for (Integer key :
                     Data.getInstance().getMultiDice().keySet()) {
@@ -372,7 +337,7 @@ public class MainActivity extends AppCompatActivity implements Observer {
                     handler.sendEmptyMessage(0);
                     return;
                 }
-                stringBuilder.append("d").append(key).append("(");
+                stringBuilder.append(Data.getInstance().getMultiDice().get(key).size()).append("d").append(key).append("(");
                 for (int i = 0; i < Data.getInstance().getMultiNrOfDice(key); i++) {
                     if (Thread.interrupted()) {
                         handler.sendEmptyMessage(0);
@@ -385,20 +350,6 @@ public class MainActivity extends AppCompatActivity implements Observer {
                 }
                 stringBuilder.append(")");
             }
-
-            // Single dice
-            /*stringBuilder.append("d").append(Data.getInstance().getLargestDie()).append("(");
-            for (int i = 0; i < Data.getInstance().getNrOfDie(); i++) {
-                if (Thread.interrupted()) {
-                    handler.sendEmptyMessage(0);
-                    return;
-                }
-                stringBuilder.append(Data.getInstance().getDie(i)).append(",");
-            }
-            if (stringBuilder.length() > 0) {
-                stringBuilder.deleteCharAt(stringBuilder.length() - 1);
-            }
-            stringBuilder.append(")");*/
 
             // Buffer
             int start = 0;
@@ -442,6 +393,7 @@ public class MainActivity extends AppCompatActivity implements Observer {
             int rowIndex = 0;
             int rows;
             int rowbuffer_value = 0;
+            int totalDice = Data.getInstance().getMultiNrOfDice();
             for (Integer key :
                     Data.getInstance().getMultiDice().keySet()) {
                 rows = (int) Math.ceil(key / (float)COLUMNS) + 1;
@@ -453,14 +405,13 @@ public class MainActivity extends AppCompatActivity implements Observer {
                 tv[0].setTextAppearance(android.R.style.TextAppearance_Material_Medium);
                 tv[0].setTypeface(null, Typeface.BOLD);
                 tv[0].setTextSize(TEXT_SIZE);
-                tv[0].setText("d" + key);
+                tv[0].setText(Data.getInstance().getMultiNrOfDice(key) + "d" + key);
                 tr[rowIndex] = new TableRow(ref.get());
                 tr[rowIndex].setGravity(Gravity.CENTER_HORIZONTAL);
                 tr[rowIndex].addView(tv[0]);
                 rowbuffer_value++;
 
                 for (int i = 0; i < rows; i++) {
-                    //counter = 0;
                     tv = new TextView[COLUMNS];
                     rowIndex = rowbuffer_value;
                     tr[rowIndex] = new TableRow(ref.get());
@@ -475,10 +426,7 @@ public class MainActivity extends AppCompatActivity implements Observer {
                         tv[j].setTypeface(null, Typeface.NORMAL);
                         tv[j].setTextSize(TEXT_SIZE);
                         if (counter < key) {
-                            int tagValue = ref.get().summaryTextFieldStart + (key * Data.getInstance().getMultiNrOfDice()) + counter;
-                            //Log.d(TAG, "ViewTag: " + tagValue);
-                            //tv[j].setTag(ref.get().summaryTextFieldStart + (counter+1)*key);
-                            tv[j].setTag(tagValue);
+                            tv[j].setTag(ref.get().summaryTextFieldStart + (key * totalDice) + counter);
                             tv[j].setText((counter+1) + ":0");
                         }
                         tr[rowIndex].addView(tv[j]);
@@ -499,50 +447,6 @@ public class MainActivity extends AppCompatActivity implements Observer {
                 }
             }
 
-
-            // Single dice
-            /*
-            int counter = 0;
-            int rows = (int) Math.ceil(Data.getInstance().getLargestDie() / (float)COLUMNS);
-            TableRow[] tr = new TableRow[ROW_BUFFER];
-            TextView[] tv;
-            int rowIndex;
-
-            // TODO: update for different sized dice
-
-            for (int i = 0; i < rows; i++) {
-                if (Thread.interrupted()) {
-                    handler.sendEmptyMessage(0);
-                    return;
-                }
-                rowIndex = i % ROW_BUFFER;
-                tv = new TextView[COLUMNS];
-                tr[rowIndex] = new TableRow(ref.get());
-                for (int j = 0; j < COLUMNS; j++) {
-                    tv[j] = new TextView(ref.get());
-                    tv[j].setGravity(Gravity.CENTER_HORIZONTAL);
-                    tv[j].setTag(ref.get().summaryTextFieldStart + counter);
-                    tv[j].setTextAppearance(android.R.style.TextAppearance_Material_Medium);
-                    tv[j].setTypeface(null, Typeface.NORMAL);
-                    tv[j].setTextSize(TEXT_SIZE);
-                    if (counter < Data.getInstance().getLargestDie()) {
-                        int diceRoll = rowIndex * COLUMNS + j + 1;
-                        tv[j].setText(diceRoll + ":0");
-                    }
-                    tr[rowIndex].addView(tv[j]);
-                    counter++;
-                }
-                if (rowIndex == ROW_BUFFER - 1) {
-                    handler.obtainMessage(5, tr.clone()).sendToTarget();
-                    try {
-                        Thread.sleep(Integer.parseInt(ref.get().pref.getString("pref_settings_create_summary_thread_sleep", "100")));
-                    } catch (InterruptedException e) {
-                        handler.sendEmptyMessage(0);
-                        return;
-                    }
-                    tr = new TableRow[ROW_BUFFER];
-                }
-            }*/
             handler.obtainMessage(5, tr.clone()).sendToTarget();
             synchronized (MainActivity.this) {
                 mUpdateTableThread = null;
@@ -562,7 +466,7 @@ public class MainActivity extends AppCompatActivity implements Observer {
 
     // TODO: add buttons for disabled features
     private synchronized void diceRolled() {
-        int total = Data.getInstance().getTotal();
+        int total = Data.getInstance().getmTotal();
         TextView total_result = (TextView)findViewById(R.id.total_result);
         total_result.setText(String.valueOf(total));
 
@@ -586,7 +490,6 @@ public class MainActivity extends AppCompatActivity implements Observer {
             mUpdateTableThread = null;
         }
 
-
         if (ref.get().pref.getBoolean("pref_settings_summary", true)) {
             mUpdateTableThread = new UpdateTableThread();
             mUpdateTableThread.start();
@@ -599,53 +502,27 @@ public class MainActivity extends AppCompatActivity implements Observer {
 
     }
 
-    // TODO: Dices of different size
     private void showDices() {
         TextView dice = (TextView) findViewById(R.id.nrOfDice);
-        //dice.setText("Dice: " + Data.getInstance().getNrOfDie() + "d" + Data.getInstance().getLargestDie());
 
         StringBuilder diceSet = new StringBuilder("Dice: (").append(Data.getInstance().getMultiNrOfDice()).append(")");
         for (Integer key :
                 Data.getInstance().getMultiDice().keySet()) {
-            diceSet.append("d").append(key).append("(").append(Data.getInstance().getMultiDice().get(key).size()).append(")");
+            diceSet.append(Data.getInstance().getMultiDice().get(key).size()).append("d").append(key);
         }
-
 
         dice.setText(diceSet.toString());
     }
 
-    /*@Override
-    protected void onResume() {
-        Log.d(TAG, "onResume()");
-        Data.getInstance().addObserver(this);
-        super.onResume();
-    }*/
-
     @Override
     protected void onStart() {
-        //Log.d(TAG, "onStart()");
         Data.getInstance().addObserver(this);
+        showDices();
         super.onStart();
     }
 
-    /*@Override
-    protected void onPause() {
-        Log.d(TAG, "onPause()");
-        if (mRollUpdateThread != null) {
-            mRollUpdateThread.interrupt();
-            mRollUpdateThread = null;
-        }
-        if (mSummaryUpdateThread != null) {
-            mSummaryUpdateThread.interrupt();
-            mSummaryUpdateThread = null;
-        }
-        Data.getInstance().deleteObserver(this);
-        super.onPause();
-    }*/
-
     @Override
     protected void onStop() {
-        //Log.d(TAG, "onStop()");
         if (mRollUpdateThread != null) {
             mRollUpdateThread.interrupt();
             mRollUpdateThread = null;

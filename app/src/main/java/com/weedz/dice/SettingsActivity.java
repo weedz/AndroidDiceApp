@@ -6,7 +6,7 @@ import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 
-public class SettingsActivity extends AppCompatActivity implements SettingsFragment.OnResourceUpdatedListener {
+public class SettingsActivity extends AppCompatActivity implements SettingsFragment.OnResourceUpdatedListener{
 
     private static final String TAG = "SettingsActivity";
     private int resourceState = 0;
@@ -36,5 +36,7 @@ public class SettingsActivity extends AppCompatActivity implements SettingsFragm
         resourceState = 1;
         recreate();
     }
+
+
 
 }
