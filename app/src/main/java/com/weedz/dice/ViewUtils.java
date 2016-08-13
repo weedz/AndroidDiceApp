@@ -18,5 +18,9 @@ public class ViewUtils {
             activity.setTheme(R.style.AppTheme);
         }
     }
+    public static void ApplyTheme(Activity activity) {
+        SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(activity);
+        ApplyTheme(activity, pref);
+    }
 
 }
