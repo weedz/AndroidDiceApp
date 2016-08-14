@@ -22,8 +22,10 @@ public class SettingsActivity extends AppCompatActivity implements SettingsFragm
 
         super.onCreate(savedInstanceState);
         getFragmentManager().beginTransaction()
-                .replace(android.R.id.content, new SettingsFragment())
+                .add(android.R.id.content, new SettingsFragment())
                 .commit();
+
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
     }
 

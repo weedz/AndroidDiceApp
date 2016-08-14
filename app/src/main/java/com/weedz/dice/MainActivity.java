@@ -8,7 +8,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.util.SparseIntArray;
 import android.view.Gravity;
 import android.view.Menu;
@@ -16,6 +16,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
@@ -23,6 +24,7 @@ import android.widget.TextView;
 import com.weedz.dice.bookmarks.BookmarksActivity;
 
 import java.lang.ref.WeakReference;
+import java.util.ArrayList;
 import java.util.Observable;
 import java.util.Observer;
 
@@ -51,8 +53,6 @@ public class MainActivity extends AppCompatActivity implements Observer {
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        Toolbar toolbar = (Toolbar)findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
 
         Button bt_add_die = (Button)findViewById(R.id.add_die_button);
         bt_add_die.setOnClickListener(new View.OnClickListener() {
@@ -199,9 +199,15 @@ public class MainActivity extends AppCompatActivity implements Observer {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         // Settings activity
         if (requestCode == 1) {
-            // Resources updated
+            // Update resources
             if (resultCode == 1) {
-                recreate();
+                Handler handler = new Handler();
+                handler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        recreate();
+                    }
+                }, 0);
             }
         }
         super.onActivityResult(requestCode, resultCode, data);
@@ -219,29 +225,31 @@ public class MainActivity extends AppCompatActivity implements Observer {
             if (!Thread.currentThread().isInterrupted()) {
                 // Interrupted
                 if (msg.what == 0) {
-                    TableLayout tl = (TableLayout)ref.get().findViewById(R.id.dice_summary);
+                    Data.getInstance().setFlag(Data.FLAG_INTERRUPTED, true);
+
+                    LinearLayout table_container = (LinearLayout) ref.get().findViewById(R.id.dice_summary_table_container);
                     TableRow tr = new TableRow(ref.get());
                     TextView textView = new TextView(ref.get());
-                    //noinspection deprecation
-                    textView.setTextAppearance(ref.get().getApplicationContext(), android.R.style.TextAppearance_DeviceDefault_Medium);
-                    //textView.setTextAppearance(android.R.style.TextAppearance_Material_Medium);
                     textView.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
                     textView.setGravity(Gravity.CENTER_HORIZONTAL);
                     textView.setTypeface(null, Typeface.NORMAL);
                     textView.setText(R.string.interrupted);
                     tr.addView(textView);
-                    tl.removeAllViews();
-                    tl.addView(tr);
+                    table_container.removeAllViews();
+                    table_container.addView(tr);
                 }
                 // Populate summary table
                 if (msg.what == 4) {
-                    TableLayout tl = (TableLayout)ref.get().findViewById(R.id.dice_summary);
-
                     SparseIntArray dice = (SparseIntArray)msg.obj;
 
-                    int totalDice = Data.getInstance().getMultiNrOfDice();
+                    LinearLayout table_container = (LinearLayout) ref.get().findViewById(R.id.dice_summary_table_container);
+                    TableLayout tl;
+
                     for (int i = 1; i < dice.size(); i++) {
-                        TextView existing = (TextView)tl.findViewWithTag(ref.get().summaryTextFieldStart + (dice.get(0) * totalDice) + dice.keyAt(i)-1);
+
+                        tl = (TableLayout)table_container.findViewWithTag(ref.get().summaryTextFieldStart + dice.get(0));
+                        TextView existing = (TextView)tl.findViewWithTag(dice.keyAt(i)-1);
+
                         if (existing != null) {
                             String str = existing.getText().toString();
                             int nr = Integer.parseInt(str.substring(str.indexOf(":") + 1)) + dice.get(dice.keyAt(i));
@@ -250,13 +258,13 @@ public class MainActivity extends AppCompatActivity implements Observer {
                         }
                     }
                 }
-                // Create summary table
+                // Fill summary scroll view with tables
                 if (msg.what == 5) {
-                    TableLayout tl = (TableLayout) ref.get().findViewById(R.id.dice_summary);
-                    for (TableRow row :
-                            (TableRow[])msg.obj) {
-                        if (row != null) {
-                            tl.addView(row);
+                    LinearLayout table_container = (LinearLayout) ref.get().findViewById(R.id.dice_summary_table_container);
+                    for (View v :
+                            (ArrayList<View>) msg.obj) {
+                        if (v.getTag() != null) {
+                            table_container.addView(v);
                         }
                     }
                 }
@@ -287,8 +295,8 @@ public class MainActivity extends AppCompatActivity implements Observer {
                         return;
                     }
                     if (Data.getInstance().getMultiDie(key, i) == 0) {
-                        //Log.d(TAG, "PopulateSummaryTableThread(): getMultiDie(" + key + ", " + i + "): IndexOutOfBounds");
-                        break;
+                        handler.sendEmptyMessage(0);
+                        return;
                     }
                     if (dice.get(Data.getInstance().getMultiDie(key, i)) == 0) {
                         dice.put(Data.getInstance().getMultiDie(key, i), 1);
@@ -316,8 +324,6 @@ public class MainActivity extends AppCompatActivity implements Observer {
                 }
                 dice.clear();
             }
-
-            handler.obtainMessage(4, dice).sendToTarget();
             synchronized (MainActivity.this) {
                 mSummaryUpdateThread = null;
             }
@@ -391,32 +397,35 @@ public class MainActivity extends AppCompatActivity implements Observer {
             int counter;
             TableRow[] tr = new TableRow[ROW_BUFFER];
             TextView[] tv;
+            TableLayout tl;
             int rowIndex = 0;
             int rows;
             int rowbuffer_value = 0;
-            int totalDice = Data.getInstance().getMultiNrOfDice();
+
+            ArrayList<View> views = new ArrayList<>();
+
             for (Integer key :
                     Data.getInstance().getMultiDice().keySet()) {
-                rows = (int) Math.ceil(key / (float)COLUMNS) + 1;
-                counter = 0;
 
-                tv = new TextView[1];
-                tv[0] = new TextView(ref.get());
-                tv[0].setGravity(Gravity.CENTER_HORIZONTAL);
-                //noinspection deprecation
-                tv[0].setTextAppearance(getApplicationContext(), android.R.style.TextAppearance_DeviceDefault_Medium);
-                //tv[0].setTextAppearance(android.R.style.TextAppearance_Material_Medium);
-                tv[0].setTypeface(null, Typeface.BOLD);
-                tv[0].setTextSize(TEXT_SIZE);
-                tv[0].setText(Data.getInstance().getMultiNrOfDice(key) + "d" + key);
-                tr[rowIndex] = new TableRow(ref.get());
-                tr[rowIndex].setGravity(Gravity.CENTER_HORIZONTAL);
-                tr[rowIndex].addView(tv[0]);
-                rowbuffer_value++;
+                tl = new TableLayout(MainActivity.this);
+                tl.setStretchAllColumns(true);
+                tl.setTag(ref.get().summaryTextFieldStart + key);
+                TextView tv_d = new TextView(ref.get());
+                tv_d.setGravity(Gravity.CENTER_HORIZONTAL);
+                tv_d.setTypeface(null, Typeface.BOLD);
+                tv_d.setTextSize(TEXT_SIZE);
+                tv_d.setTag("d" + Data.getInstance().getMultiNrOfDice(key));
+                tv_d.setText(Data.getInstance().getMultiNrOfDice(key) + "d" + key);
+                views.add(tv_d);
+                views.add(tl);
+
+                rows = (int) Math.ceil(key / (float)COLUMNS);
+                counter = 0;
 
                 for (int i = 0; i < rows; i++) {
                     tv = new TextView[COLUMNS];
                     rowIndex = rowbuffer_value;
+                    rowbuffer_value++;
                     tr[rowIndex] = new TableRow(ref.get());
                     for (int j = 0; j < COLUMNS; j++) {
                         if (Thread.interrupted()) {
@@ -425,34 +434,42 @@ public class MainActivity extends AppCompatActivity implements Observer {
                         }
                         tv[j] = new TextView(ref.get());
                         tv[j].setGravity(Gravity.CENTER_HORIZONTAL);
-                        //noinspection deprecation
-                        tv[j].setTextAppearance(getApplicationContext(), android.R.style.TextAppearance_DeviceDefault_Medium);
-                        //tv[j].setTextAppearance(android.R.style.TextAppearance_Material_Medium);
                         tv[j].setTypeface(null, Typeface.NORMAL);
                         tv[j].setTextSize(TEXT_SIZE);
                         if (counter < key) {
-                            tv[j].setTag(ref.get().summaryTextFieldStart + (key * totalDice) + counter);
-                            tv[j].setText((counter+1) + ":0");
+                            tv[j].setTag(counter);
+                            tv[j].setText((counter + 1) + ":0");
                         }
                         tr[rowIndex].addView(tv[j]);
                         counter++;
                     }
-                    if (rowIndex == ROW_BUFFER - 1) {
-                        handler.obtainMessage(5, tr.clone()).sendToTarget();
+                    tl.addView(tr[rowIndex]);
+                    if (rowbuffer_value >= ROW_BUFFER) {
+                        //views.add(tl);
+                        handler.obtainMessage(5, views.clone()).sendToTarget();
                         try {
                             Thread.sleep(Integer.parseInt(ref.get().pref.getString("pref_settings_create_summary_thread_sleep", "100")));
                         } catch (InterruptedException e) {
                             handler.sendEmptyMessage(0);
                             return;
                         }
-                        tr = new TableRow[ROW_BUFFER];
+                        views.clear();
                         rowbuffer_value = 0;
+                        tr = new TableRow[ROW_BUFFER];
                     }
-                    rowbuffer_value++;
+                }
+                //views.add(tl);
+                if (views.size() > 0) {
+                    handler.obtainMessage(5, views.clone()).sendToTarget();
+                    try {
+                        Thread.sleep(Integer.parseInt(ref.get().pref.getString("pref_settings_create_summary_thread_sleep", "100")));
+                    } catch (InterruptedException e) {
+                        handler.sendEmptyMessage(0);
+                        return;
+                    }
+                    views.clear();
                 }
             }
-
-            handler.obtainMessage(5, tr.clone()).sendToTarget();
             synchronized (MainActivity.this) {
                 mUpdateTableThread = null;
             }
@@ -475,8 +492,8 @@ public class MainActivity extends AppCompatActivity implements Observer {
         TextView total_result = (TextView)findViewById(R.id.total_result);
         total_result.setText(String.valueOf(total));
 
-        TableLayout tl = (TableLayout)ref.get().findViewById(R.id.dice_summary);
-        tl.removeAllViews();
+        LinearLayout table_container = (LinearLayout) ref.get().findViewById(R.id.dice_summary_table_container);
+        table_container.removeAllViews();
 
         TextView rolls = (TextView) ref.get().findViewById(R.id.die_rolls);
         rolls.setTextSize(Float.parseFloat(ref.get().pref.getString("pref_settings_detailed_roll_thread_font_size", "19")));
@@ -527,6 +544,16 @@ public class MainActivity extends AppCompatActivity implements Observer {
     }
 
     @Override
+    protected void onResume() {
+        super.onResume();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+    }
+
+    @Override
     protected void onStop() {
         if (mRollUpdateThread != null) {
             mRollUpdateThread.interrupt();
@@ -551,8 +578,10 @@ public class MainActivity extends AppCompatActivity implements Observer {
             Data.getInstance().setFlag(Data.FLAG_DICE_ROLL, false);
         }
         if (Data.getInstance().getFlag(Data.FLAG_INTERRUPTED)) {
+            TextView rolls = (TextView) ref.get().findViewById(R.id.die_rolls);
             TextView total_result = (TextView)findViewById(R.id.total_result);
             total_result.setText(R.string.interrupted);
+            rolls.setText("");
             Data.getInstance().setFlag(Data.FLAG_INTERRUPTED, false);
         }
     }

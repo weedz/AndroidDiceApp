@@ -30,7 +30,7 @@ public class Data extends Observable {
     private Boolean[] flags = new Boolean[4];
 
     // Different sized dice
-    private ConcurrentHashMap<Integer, ArrayList<Integer>> multiDice;
+    private volatile ConcurrentHashMap<Integer, ArrayList<Integer>> multiDice;
 
     private int mTotal = 0;
 
@@ -179,6 +179,9 @@ public class Data extends Observable {
                         ref.get().setUpdate();
                         break;
                 }
+            } else {
+                ref.get().setFlag(FLAG_INTERRUPTED, true);
+                ref.get().setUpdate();
             }
             super.handleMessage(msg);
         }
@@ -195,6 +198,10 @@ public class Data extends Observable {
                 for (int j = 0; j < multiDice.get(key).size(); j++) {
                     roll = (int)(Math.random()*key+1);
                     mTotal += roll;
+                    if (Thread.interrupted()) {
+                        handler.sendEmptyMessage(0);
+                        return;
+                    }
                     multiDice.get(key).set(j, roll);
                 }
             }

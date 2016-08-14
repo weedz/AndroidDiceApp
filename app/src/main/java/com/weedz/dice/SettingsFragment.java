@@ -19,9 +19,9 @@ public class SettingsFragment extends PreferenceFragment implements SharedPrefer
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         addPreferencesFromResource(R.xml.pref_main);
-
+/*
         // set texts correctly
-        onSharedPreferenceChanged(null, "");
+        onSharedPreferenceChanged(null, "");*/
     }
 
     @Override

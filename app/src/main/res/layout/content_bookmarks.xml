@@ -10,7 +10,9 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     tools:context=".bookmarks.BookmarksActivity"
-    tools:showIn="@layout/activity_bookmarks">
+    tools:showIn="@layout/activity_bookmarks"
+    android:focusable="true"
+    android:focusableInTouchMode="true">
 
     <ScrollView
         android:layout_width="match_parent"
@@ -59,9 +61,11 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/bookmarks_save_name_editbox"
+        android:text="DiceSet"
         android:inputType="text"
         android:layout_above="@+id/bookmarks_save_button"
         android:layout_alignParentEnd="true"
-        android:layout_alignStart="@+id/bookmarks_save_button" />
+        android:layout_alignStart="@+id/bookmarks_save_button"
+        android:selectAllOnFocus="true" />
 
 </RelativeLayout>
