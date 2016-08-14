@@ -1,10 +1,11 @@
 package com.weedz.dice;
 
-import android.content.SharedPreferences;
+import android.content.Intent;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 
 public class SettingsActivity extends AppCompatActivity implements SettingsFragment.OnResourceUpdatedListener{
 
@@ -12,8 +13,7 @@ public class SettingsActivity extends AppCompatActivity implements SettingsFragm
     private int resourceState = 0;
 
     protected void onCreate(Bundle savedInstanceState) {
-        SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(this);
-        ViewUtils.ApplyTheme(this, pref);
+        ViewUtils.ApplyTheme(this);
 
         if (savedInstanceState != null) {
             resourceState = savedInstanceState.getInt("resourceState");
@@ -39,6 +39,26 @@ public class SettingsActivity extends AppCompatActivity implements SettingsFragm
         recreate();
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_settings, menu);
+        return true;
+    }
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        Intent intent;
+        switch (item.getItemId()) {
+            case R.id.action_about:
+                intent = new Intent(this, AboutActivity.class);
+                startActivity(intent);
+                break;
+            case R.id.action_help:
+                intent = new Intent(this, HelpActivity.class);
+                startActivity(intent);
+                break;
 
+        }
+        return super.onOptionsItemSelected(item);
+    }
 
 }

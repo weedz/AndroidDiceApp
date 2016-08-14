@@ -20,7 +20,6 @@ class BookmarksListAdapter extends ArrayAdapter<String> {
 
     private final Context context;
     private final ArrayList<String> name;
-    private final ArrayList<String> values;
     private final ArrayList<ArrayList<Integer>> nr;
     private final ArrayList<ArrayList<Integer>> sides;
 
@@ -29,7 +28,6 @@ class BookmarksListAdapter extends ArrayAdapter<String> {
         super(context, resId, values);
         this.context = context;
         this.name = name;
-        this.values = values;
         nr = nrList;
         sides = sidesList;
     }
@@ -59,7 +57,4 @@ class BookmarksListAdapter extends ArrayAdapter<String> {
 
         return rowView;
     }
-
-
-
 }

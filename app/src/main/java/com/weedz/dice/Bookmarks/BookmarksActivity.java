@@ -17,8 +17,9 @@ import android.widget.ToggleButton;
 
 import com.weedz.dice.Data;
 import com.weedz.dice.R;
-import com.weedz.dice.database.SQLiteHelper;
 import com.weedz.dice.ViewUtils;
+import com.weedz.dice.database.BookmarksDB;
+import com.weedz.dice.database.DiceDB;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -39,23 +40,22 @@ public class BookmarksActivity extends AppCompatActivity {
         ViewUtils.ApplyTheme(this);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_bookmarks);
-
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         final ListView bookmarksList = (ListView)findViewById(R.id.bookmarks_saved_list);
 
         // Load dice-set from DB
-        SQLiteHelper mDBHelper = new SQLiteHelper(getApplicationContext());
+        DiceDB mDBHelper = new DiceDB(getApplicationContext());
         SQLiteDatabase db = mDBHelper.getReadableDatabase();
         String[] returnValues = {
-                SQLiteHelper.FeedEntry.COLUMN_NAME_ENTRY_ID,
-                SQLiteHelper.FeedEntry.COLUMN_NAME_SAVE_NAME,
-                SQLiteHelper.FeedEntry.COLUMN_NAME_SAVE_NR,
-                SQLiteHelper.FeedEntry.COLUMN_NAME_SAVE_SIDES
+                BookmarksDB.Bookmarks.COLUMN_NAME_ENTRY_ID,
+                BookmarksDB.Bookmarks.COLUMN_NAME_SAVE_NAME,
+                BookmarksDB.Bookmarks.COLUMN_NAME_SAVE_NR,
+                BookmarksDB.Bookmarks.COLUMN_NAME_SAVE_SIDES
         };
-        String sortOrder = SQLiteHelper.FeedEntry.COLUMN_NAME_SAVE_NAME + " ASC";
+        String sortOrder = BookmarksDB.Bookmarks.COLUMN_NAME_SAVE_NAME + " ASC";
         Cursor c = db.query(
-                SQLiteHelper.FeedEntry.TABLE_NAME,
+                BookmarksDB.Bookmarks.TABLE_NAME,
                 returnValues,
                 null,
                 null,
@@ -64,20 +64,17 @@ public class BookmarksActivity extends AppCompatActivity {
                 sortOrder
         );
 
-
         final ArrayList<String> nameList = new ArrayList<>();
         final ArrayList<String> idList = new ArrayList<>();
         final ArrayList<ArrayList<Integer>> nrList = new ArrayList<>();
         final ArrayList<ArrayList<Integer>> sidesList = new ArrayList<>();
         if (c.getCount() > 0) {
-
             // ObjectStream
             ByteArrayInputStream bis;
             ObjectInput in;
             while (c.moveToNext()) {
                 idList.add(c.getString(0));
                 nameList.add(c.getString(1));
-
                 try {
                     bis = new ByteArrayInputStream(c.getBlob(2));
                     in = new ObjectInputStream(bis);
@@ -92,7 +89,6 @@ public class BookmarksActivity extends AppCompatActivity {
                 } catch (ClassNotFoundException e) {
                     e.printStackTrace();
                 }
-
             }
         }
         c.close();
@@ -104,13 +100,11 @@ public class BookmarksActivity extends AppCompatActivity {
         save.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
                 if (Data.getInstance().getMultiDice().size() == 0) {
                     return;
                 }
-
                 // Save dice set to SQLite DB
-                SQLiteHelper mDBHelper = new SQLiteHelper(getApplicationContext());
+                DiceDB mDBHelper = new DiceDB(getApplicationContext());
                 SQLiteDatabase db = mDBHelper.getWritableDatabase();
 
                 // Build arrays
@@ -121,7 +115,6 @@ public class BookmarksActivity extends AppCompatActivity {
                     nrArray.add(Data.getInstance().getMultiNrOfDice(key));
                     sidesArray.add(key);
                 }
-
                 // ObjectStream
                 ByteArrayOutputStream bos;
                 ObjectOutput out;
@@ -149,12 +142,12 @@ public class BookmarksActivity extends AppCompatActivity {
                     name = "DiceSet";
                 }
                 ContentValues values = new ContentValues();
-                values.put(SQLiteHelper.FeedEntry.COLUMN_NAME_SAVE_NAME, name);
-                values.put(SQLiteHelper.FeedEntry.COLUMN_NAME_SAVE_NR, nrBytes);
-                values.put(SQLiteHelper.FeedEntry.COLUMN_NAME_SAVE_SIDES, sidesBytes);
+                values.put(BookmarksDB.Bookmarks.COLUMN_NAME_SAVE_NAME, name);
+                values.put(BookmarksDB.Bookmarks.COLUMN_NAME_SAVE_NR, nrBytes);
+                values.put(BookmarksDB.Bookmarks.COLUMN_NAME_SAVE_SIDES, sidesBytes);
 
                 Long newRowId = db.insert(
-                        SQLiteHelper.FeedEntry.TABLE_NAME,
+                        BookmarksDB.Bookmarks.TABLE_NAME,
                         null,
                         values
                 );
@@ -182,9 +175,9 @@ public class BookmarksActivity extends AppCompatActivity {
         clear.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                SQLiteHelper mDBHelper = new SQLiteHelper(getApplicationContext());
+                DiceDB mDBHelper = new DiceDB(getApplicationContext());
                 SQLiteDatabase db = mDBHelper.getReadableDatabase();
-                db.execSQL("DELETE FROM " + SQLiteHelper.FeedEntry.TABLE_NAME);
+                db.execSQL("DELETE FROM " + BookmarksDB.Bookmarks.TABLE_NAME);
                 db.close();
                 idList.clear();
                 nameList.clear();
@@ -199,20 +192,20 @@ public class BookmarksActivity extends AppCompatActivity {
 
                 // TODO: Add confirmation
                 String id = adapter.getItem(position);
-                SQLiteHelper mDBHelper = new SQLiteHelper(getApplicationContext());
+                DiceDB mDBHelper = new DiceDB(getApplicationContext());
                 SQLiteDatabase db = mDBHelper.getReadableDatabase();
                 if (actionChecked) {
                     // Load
                     String[] returnValues = {
-                            SQLiteHelper.FeedEntry.COLUMN_NAME_ENTRY_ID,
-                            SQLiteHelper.FeedEntry.COLUMN_NAME_SAVE_NAME,
-                            SQLiteHelper.FeedEntry.COLUMN_NAME_SAVE_NR,
-                            SQLiteHelper.FeedEntry.COLUMN_NAME_SAVE_SIDES
+                            BookmarksDB.Bookmarks.COLUMN_NAME_ENTRY_ID,
+                            BookmarksDB.Bookmarks.COLUMN_NAME_SAVE_NAME,
+                            BookmarksDB.Bookmarks.COLUMN_NAME_SAVE_NR,
+                            BookmarksDB.Bookmarks.COLUMN_NAME_SAVE_SIDES
                     };
                     Cursor c = db.query(
-                            SQLiteHelper.FeedEntry.TABLE_NAME,
+                            BookmarksDB.Bookmarks.TABLE_NAME,
                             returnValues,
-                            SQLiteHelper.FeedEntry.COLUMN_NAME_ENTRY_ID + " = ?",
+                            BookmarksDB.Bookmarks.COLUMN_NAME_ENTRY_ID + " = ?",
                             new String[]{id},
                             null,
                             null,
@@ -256,8 +249,8 @@ public class BookmarksActivity extends AppCompatActivity {
                 } else {
                     // Remove
                     db.delete(
-                            SQLiteHelper.FeedEntry.TABLE_NAME,
-                            SQLiteHelper.FeedEntry.COLUMN_NAME_ENTRY_ID + " = ?",
+                            BookmarksDB.Bookmarks.TABLE_NAME,
+                            BookmarksDB.Bookmarks.COLUMN_NAME_ENTRY_ID + " = ?",
                             new String[]{id}
                     );
                     db.close();

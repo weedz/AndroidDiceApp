@@ -1,14 +1,15 @@
 package com.weedz.dice;
 
+import android.content.ContentValues;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.util.SparseIntArray;
 import android.view.Gravity;
 import android.view.Menu;
@@ -22,6 +23,9 @@ import android.widget.TableRow;
 import android.widget.TextView;
 
 import com.weedz.dice.bookmarks.BookmarksActivity;
+import com.weedz.dice.database.DiceDB;
+import com.weedz.dice.database.HistoryDB;
+import com.weedz.dice.history.HistoryActivity;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -32,15 +36,12 @@ public class MainActivity extends AppCompatActivity implements Observer {
 
     private static final String TAG = "HomeActivity";
 
-    // IDs
-    private final int summaryTextFieldStart = 0x000000ff;
-
     // Threading stuff
     private RollUpdateUIThread mRollUpdateThread;
     private PopulateSummaryTableThread mSummaryUpdateThread;
     private UpdateTableThread mUpdateTableThread;
     private WeakReference<MainActivity> ref = new WeakReference<>(this);
-    private RollUpdateUIHandler handler = new RollUpdateUIHandler(ref);
+    private UpdateUIHandler handler = new UpdateUIHandler(ref);
 
     private SharedPreferences pref;
 
@@ -48,6 +49,8 @@ public class MainActivity extends AppCompatActivity implements Observer {
     protected void onCreate(Bundle savedInstanceState) {
         pref = PreferenceManager.getDefaultSharedPreferences(this);
         // Set default values for settings
+        DiceDB db = new DiceDB(this);
+        db.close();
         PreferenceManager.setDefaultValues(this, R.xml.pref_main, false);
         ViewUtils.ApplyTheme(this, pref);
 
@@ -191,6 +194,18 @@ public class MainActivity extends AppCompatActivity implements Observer {
                 intent = new Intent(this, BookmarksActivity.class);
                 startActivity(intent);
                 break;
+            case R.id.action_history:
+                intent = new Intent(this, HistoryActivity.class);
+                startActivity(intent);
+                break;
+            case R.id.action_about:
+                intent = new Intent(this, AboutActivity.class);
+                startActivity(intent);
+                break;
+            case R.id.action_help:
+                intent = new Intent(this, HelpActivity.class);
+                startActivity(intent);
+                break;
 
         }
         return super.onOptionsItemSelected(item);
@@ -213,10 +228,10 @@ public class MainActivity extends AppCompatActivity implements Observer {
         super.onActivityResult(requestCode, resultCode, data);
     }
 
-    static class RollUpdateUIHandler extends Handler {
+    static class UpdateUIHandler extends Handler {
         WeakReference<MainActivity> ref;
 
-        public RollUpdateUIHandler(WeakReference<MainActivity> ref) {
+        public UpdateUIHandler(WeakReference<MainActivity> ref) {
             this.ref = ref;
         }
 
@@ -286,8 +301,8 @@ public class MainActivity extends AppCompatActivity implements Observer {
     private class PopulateSummaryTableThread extends Thread {
 
         public void run() {
-            final int BUFFER_LENGTH = Integer.parseInt(ref.get().pref.getString("pref_Settings_summary_buffer", "100"));
-            final int THREAD_SLEEP = Integer.parseInt(ref.get().pref.getString("pref_settings_summary_thread_sleep", "100"));
+            final int BUFFER_LENGTH = Integer.parseInt(pref.getString("pref_Settings_summary_buffer", "100"));
+            final int THREAD_SLEEP = Integer.parseInt(pref.getString("pref_settings_summary_thread_sleep", "100"));
 
             SparseIntArray dice = new SparseIntArray();
             // Multi dice
@@ -337,10 +352,10 @@ public class MainActivity extends AppCompatActivity implements Observer {
     private class RollUpdateUIThread extends Thread {
 
         public void run() {
-            final int BUFFER_LENGTH = Integer.parseInt(ref.get().pref.getString("pref_Settings_detailed_roll_buffer", "100"));
-            final int THREAD_SLEEP = Integer.parseInt(ref.get().pref.getString("pref_settings_detailed_roll_thread_sleep", "100"));
+            final int BUFFER_LENGTH = Integer.parseInt(pref.getString("pref_Settings_detailed_roll_buffer", "100"));
+            final int THREAD_SLEEP = Integer.parseInt(pref.getString("pref_settings_detailed_roll_thread_sleep", "100"));
 
-            StringBuilder stringBuilder = new StringBuilder(Data.getInstance().getMultiNrOfDice() * 2);
+            StringBuilder sb = new StringBuilder(Data.getInstance().getMultiNrOfDice() * 2);
             // Multi dice
             for (Integer key :
                     Data.getInstance().getMultiDice().keySet()) {
@@ -348,31 +363,41 @@ public class MainActivity extends AppCompatActivity implements Observer {
                     handler.obtainMessage(0,1).sendToTarget();
                     return;
                 }
-                stringBuilder.append(Data.getInstance().getMultiDice().get(key).size()).append("d").append(key).append("(");
+                sb.append(Data.getInstance().getMultiDice().get(key).size()).append("d").append(key).append("(");
                 for (int i = 0; i < Data.getInstance().getMultiNrOfDice(key); i++) {
                     if (Thread.interrupted()) {
                         handler.obtainMessage(0,1).sendToTarget();
                         return;
                     }
-                    stringBuilder.append(Data.getInstance().getMultiDie(key, i)).append(",");
+                    sb.append(Data.getInstance().getMultiDie(key, i)).append(",");
                 }
-                if (stringBuilder.length() > 0) {
-                    stringBuilder.deleteCharAt(stringBuilder.length() - 1);
+                if (sb.length() > 0) {
+                    sb.deleteCharAt(sb.length() - 1);
                 }
-                stringBuilder.append(") ");
+                sb.append(") ");
+            }
+
+            // Save to history
+            if (pref.getBoolean("pref_settings_history", false)) {
+                DiceDB mDBHelper = new DiceDB(getApplicationContext());
+                SQLiteDatabase db = mDBHelper.getWritableDatabase();
+                ContentValues values = new ContentValues();
+                values.put(HistoryDB.History.COLUMN_NAME_DATA, sb.toString());
+                db.insert(HistoryDB.History.TABLE_NAME, null, values);
+                db.close();
             }
 
             // Buffer
             int start = 0;
             int end;
-            while(start < stringBuilder.length()) {
+            while(start < sb.length()) {
                 if (Thread.interrupted()) {
                     handler.obtainMessage(0,1).sendToTarget();
                     return;
                 }
                 end = start + BUFFER_LENGTH;
-                if (end > stringBuilder.length()) {
-                    end = stringBuilder.length();
+                if (end > sb.length()) {
+                    end = sb.length();
                 }
                 try {
                     Thread.sleep(THREAD_SLEEP);
@@ -380,7 +405,7 @@ public class MainActivity extends AppCompatActivity implements Observer {
                     handler.obtainMessage(0,1).sendToTarget();
                     return;
                 }
-                handler.obtainMessage(6, stringBuilder.substring(start, end)).sendToTarget();
+                handler.obtainMessage(6, sb.substring(start, end)).sendToTarget();
                 start += BUFFER_LENGTH;
             }
 
@@ -393,10 +418,10 @@ public class MainActivity extends AppCompatActivity implements Observer {
     private class UpdateTableThread extends Thread {
 
         public void run() {
-            final float TEXT_SIZE = Float.parseFloat(ref.get().pref.getString("pref_settings_summary_font_size", "20"));
-            final int ROW_BUFFER = Integer.parseInt(ref.get().pref.getString("pref_settings_create_summary_row_buffer", "50"));
-            final int THREAD_SLEEP = Integer.parseInt(ref.get().pref.getString("pref_settings_create_summary_thread_sleep", "100"));
-            final int COLUMNS = Integer.parseInt(ref.get().pref.getString("pref_settings_summary_table_columns", "50"));
+            final float TEXT_SIZE = Float.parseFloat(pref.getString("pref_settings_summary_font_size", "20"));
+            final int ROW_BUFFER = Integer.parseInt(pref.getString("pref_settings_create_summary_row_buffer", "50"));
+            final int THREAD_SLEEP = Integer.parseInt(pref.getString("pref_settings_create_summary_thread_sleep", "100"));
+            final int COLUMNS = Integer.parseInt(pref.getString("pref_settings_summary_table_columns", "50"));
 
             // Multi dice
             int counter;
@@ -415,7 +440,7 @@ public class MainActivity extends AppCompatActivity implements Observer {
                 tl = new TableLayout(MainActivity.this);
                 tl.setStretchAllColumns(true);
                 tl.setTag(key);
-                TextView tv_d = new TextView(ref.get());
+                TextView tv_d = new TextView(getApplicationContext());
                 tv_d.setGravity(Gravity.CENTER_HORIZONTAL);
                 tv_d.setTypeface(null, Typeface.BOLD);
                 tv_d.setTextSize(TEXT_SIZE);
@@ -431,13 +456,13 @@ public class MainActivity extends AppCompatActivity implements Observer {
                     tv = new TextView[COLUMNS];
                     rowIndex = rowbuffer_value;
                     rowbuffer_value++;
-                    tr[rowIndex] = new TableRow(ref.get());
+                    tr[rowIndex] = new TableRow(getApplicationContext());
                     for (int j = 0; j < COLUMNS; j++) {
                         if (Thread.interrupted()) {
                             handler.obtainMessage(0,2).sendToTarget();
                             return;
                         }
-                        tv[j] = new TextView(ref.get());
+                        tv[j] = new TextView(getApplicationContext());
                         tv[j].setGravity(Gravity.CENTER_HORIZONTAL);
                         tv[j].setTypeface(null, Typeface.NORMAL);
                         tv[j].setTextSize(TEXT_SIZE);
@@ -495,11 +520,11 @@ public class MainActivity extends AppCompatActivity implements Observer {
         TextView total_result = (TextView)findViewById(R.id.total_result);
         total_result.setText(String.valueOf(total));
 
-        LinearLayout table_container = (LinearLayout) ref.get().findViewById(R.id.dice_summary_table_container);
+        LinearLayout table_container = (LinearLayout)findViewById(R.id.dice_summary_table_container);
         table_container.removeAllViews();
 
-        TextView rolls = (TextView) ref.get().findViewById(R.id.die_rolls);
-        rolls.setTextSize(Float.parseFloat(ref.get().pref.getString("pref_settings_detailed_roll_thread_font_size", "19")));
+        TextView rolls = (TextView) findViewById(R.id.die_rolls);
+        rolls.setTextSize(Float.parseFloat(pref.getString("pref_settings_detailed_roll_thread_font_size", "19")));
         rolls.setText("");
 
         if (mRollUpdateThread != null) {
@@ -515,12 +540,12 @@ public class MainActivity extends AppCompatActivity implements Observer {
             mUpdateTableThread = null;
         }
 
-        if (ref.get().pref.getBoolean("pref_settings_summary", true)) {
+        if (pref.getBoolean("pref_settings_summary", true)) {
             mUpdateTableThread = new UpdateTableThread();
             mUpdateTableThread.start();
         }
 
-        if (ref.get().pref.getBoolean("pref_settings_detailed_roll", true)) {
+        if (pref.getBoolean("pref_settings_detailed_roll", true)) {
             mRollUpdateThread = new RollUpdateUIThread();
             mRollUpdateThread.start();
         }

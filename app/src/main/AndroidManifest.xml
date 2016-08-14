@@ -22,6 +22,18 @@
             android:name=".bookmarks.BookmarksActivity"
             android:label="@string/title_activity_bookmarks"
             android:parentActivityName=".MainActivity" />
+        <activity
+            android:name=".history.HistoryActivity"
+            android:label="@string/title_activity_history"
+            android:parentActivityName=".MainActivity" />
+        <activity
+            android:name=".AboutActivity"
+            android:label="About"
+            android:parentActivityName=".MainActivity" />
+        <activity
+            android:name=".HelpActivity"
+            android:label="Help"
+            android:parentActivityName=".MainActivity" />
     </application>
 
 </manifest>

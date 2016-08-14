@@ -12,4 +12,5 @@
     <string name="bookmarks">Bookmarks</string>
     <string name="help">Help</string>
     <string name="about">About</string>
+    <string name="title_activity_history">History</string>
 </resources>
