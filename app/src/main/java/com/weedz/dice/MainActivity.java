@@ -241,6 +241,7 @@ public class MainActivity extends AppCompatActivity implements Observer {
                         TextView rolls = (TextView) ref.get().findViewById(R.id.die_rolls);
                         rolls.setText(R.string.interrupted);
                     }
+                    Thread.currentThread().interrupt();
                 }
                 // Populate summary table
                 if (msg.what == 4) {

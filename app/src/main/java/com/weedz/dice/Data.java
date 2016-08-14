@@ -167,9 +167,10 @@ public class Data extends Observable {
         public void handleMessage(Message msg) {
             if (!Thread.currentThread().isInterrupted()) {
                 switch (msg.what) {
-                    case 0:
+                    case 0: // Interrupted
                         ref.get().setFlag(FLAG_INTERRUPTED, true);
                         ref.get().setUpdate();
+                        Thread.currentThread().interrupt();
                         break;
                     case 1: // Roll finished
                         ref.get().setFlag(FLAG_DICE_ROLL, true);
