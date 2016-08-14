@@ -114,7 +114,9 @@ public class Data extends Observable {
             mRollThread.interrupt();
         }
         if (sides > 0 && multiDice.get(sides) != null) {
-            return multiDice.get(sides).get(i);
+            if (multiDice.get(sides).get(i) != null) {
+                return multiDice.get(sides).get(i);
+            }
         }
 
         return 0;
@@ -150,10 +152,9 @@ public class Data extends Observable {
         if (mRollThread != null) {
             mRollThread.interrupt();
             mRollThread = null;
-        } else {
-            mRollThread = new RollThread();
-            mRollThread.start();
         }
+        mRollThread = new RollThread();
+        mRollThread.start();
     }
 
     static class RollHandler extends Handler {
@@ -164,10 +165,6 @@ public class Data extends Observable {
 
         @Override
         public void handleMessage(Message msg) {
-            if(msg == null) {
-                //.d(TAG, "RollHandler() msg == null");
-                return;
-            }
             if (!Thread.currentThread().isInterrupted()) {
                 switch (msg.what) {
                     case 0:

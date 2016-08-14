@@ -225,18 +225,22 @@ public class MainActivity extends AppCompatActivity implements Observer {
             if (!Thread.currentThread().isInterrupted()) {
                 // Interrupted
                 if (msg.what == 0) {
-                    Data.getInstance().setFlag(Data.FLAG_INTERRUPTED, true);
-
-                    LinearLayout table_container = (LinearLayout) ref.get().findViewById(R.id.dice_summary_table_container);
-                    TableRow tr = new TableRow(ref.get());
-                    TextView textView = new TextView(ref.get());
-                    textView.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
-                    textView.setGravity(Gravity.CENTER_HORIZONTAL);
-                    textView.setTypeface(null, Typeface.NORMAL);
-                    textView.setText(R.string.interrupted);
-                    tr.addView(textView);
-                    table_container.removeAllViews();
-                    table_container.addView(tr);
+                    if ((int)msg.obj == 0 || (int)msg.obj == 2) {
+                        LinearLayout table_container = (LinearLayout) ref.get().findViewById(R.id.dice_summary_table_container);
+                        TableRow tr = new TableRow(ref.get());
+                        TextView textView = new TextView(ref.get());
+                        textView.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
+                        textView.setGravity(Gravity.CENTER_HORIZONTAL);
+                        textView.setTypeface(null, Typeface.NORMAL);
+                        textView.setText(R.string.interrupted);
+                        tr.addView(textView);
+                        table_container.removeAllViews();
+                        table_container.addView(tr);
+                    }
+                    if ((int)msg.obj == 1) {
+                        TextView rolls = (TextView) ref.get().findViewById(R.id.die_rolls);
+                        rolls.setText(R.string.interrupted);
+                    }
                 }
                 // Populate summary table
                 if (msg.what == 4) {
@@ -291,11 +295,11 @@ public class MainActivity extends AppCompatActivity implements Observer {
                 dice.put(0, key);
                 for (int i = 0; i < Data.getInstance().getMultiNrOfDice(key); i++) {
                     if (Thread.interrupted()) {
-                        handler.sendEmptyMessage(0);
+                        handler.obtainMessage(0,0).sendToTarget();
                         return;
                     }
                     if (Data.getInstance().getMultiDie(key, i) == 0) {
-                        handler.sendEmptyMessage(0);
+                        handler.obtainMessage(0,0).sendToTarget();
                         return;
                     }
                     if (dice.get(Data.getInstance().getMultiDie(key, i)) == 0) {
@@ -304,24 +308,24 @@ public class MainActivity extends AppCompatActivity implements Observer {
                         dice.put(Data.getInstance().getMultiDie(key, i), dice.get(Data.getInstance().getMultiDie(key, i)) + 1);
                     }
                     if (i > 0 && i % BUFFER_LENGTH == 0) {
-                        handler.obtainMessage(4, dice.clone()).sendToTarget();
                         try {
                             Thread.sleep(THREAD_SLEEP);
                         } catch (InterruptedException e) {
-                            handler.sendEmptyMessage(0);
+                            handler.obtainMessage(0,0).sendToTarget();
                             return;
                         }
+                        handler.obtainMessage(4, dice.clone()).sendToTarget();
                         dice.clear();
                         dice.put(0, key);
                     }
                 }
-                handler.obtainMessage(4, dice.clone()).sendToTarget();
                 try {
                     Thread.sleep(THREAD_SLEEP);
                 } catch (InterruptedException e) {
-                    handler.sendEmptyMessage(0);
+                    handler.obtainMessage(0,0).sendToTarget();
                     return;
                 }
+                handler.obtainMessage(4, dice.clone()).sendToTarget();
                 dice.clear();
             }
             synchronized (MainActivity.this) {
@@ -341,13 +345,13 @@ public class MainActivity extends AppCompatActivity implements Observer {
             for (Integer key :
                     Data.getInstance().getMultiDice().keySet()) {
                 if (Thread.interrupted()) {
-                    handler.sendEmptyMessage(0);
+                    handler.obtainMessage(0,1).sendToTarget();
                     return;
                 }
                 stringBuilder.append(Data.getInstance().getMultiDice().get(key).size()).append("d").append(key).append("(");
                 for (int i = 0; i < Data.getInstance().getMultiNrOfDice(key); i++) {
                     if (Thread.interrupted()) {
-                        handler.sendEmptyMessage(0);
+                        handler.obtainMessage(0,1).sendToTarget();
                         return;
                     }
                     stringBuilder.append(Data.getInstance().getMultiDie(key, i)).append(",");
@@ -363,20 +367,20 @@ public class MainActivity extends AppCompatActivity implements Observer {
             int end;
             while(start < stringBuilder.length()) {
                 if (Thread.interrupted()) {
-                    handler.sendEmptyMessage(0);
+                    handler.obtainMessage(0,1).sendToTarget();
                     return;
                 }
                 end = start + BUFFER_LENGTH;
                 if (end > stringBuilder.length()) {
                     end = stringBuilder.length();
                 }
-                handler.obtainMessage(6, stringBuilder.substring(start, end)).sendToTarget();
                 try {
                     Thread.sleep(THREAD_SLEEP);
                 } catch (InterruptedException e) {
-                    handler.sendEmptyMessage(0);
+                    handler.obtainMessage(0,1).sendToTarget();
                     return;
                 }
+                handler.obtainMessage(6, stringBuilder.substring(start, end)).sendToTarget();
                 start += BUFFER_LENGTH;
             }
 
@@ -391,6 +395,7 @@ public class MainActivity extends AppCompatActivity implements Observer {
         public void run() {
             final float TEXT_SIZE = Float.parseFloat(ref.get().pref.getString("pref_settings_summary_font_size", "20"));
             final int ROW_BUFFER = Integer.parseInt(ref.get().pref.getString("pref_settings_create_summary_row_buffer", "50"));
+            final int THREAD_SLEEP = Integer.parseInt(ref.get().pref.getString("pref_settings_create_summary_thread_sleep", "100"));
             final int COLUMNS = Integer.parseInt(ref.get().pref.getString("pref_settings_summary_table_columns", "50"));
 
             // Multi dice
@@ -429,7 +434,7 @@ public class MainActivity extends AppCompatActivity implements Observer {
                     tr[rowIndex] = new TableRow(ref.get());
                     for (int j = 0; j < COLUMNS; j++) {
                         if (Thread.interrupted()) {
-                            handler.sendEmptyMessage(0);
+                            handler.obtainMessage(0,2).sendToTarget();
                             return;
                         }
                         tv[j] = new TextView(ref.get());
@@ -445,28 +450,26 @@ public class MainActivity extends AppCompatActivity implements Observer {
                     }
                     tl.addView(tr[rowIndex]);
                     if (rowbuffer_value >= ROW_BUFFER) {
-                        //views.add(tl);
-                        handler.obtainMessage(5, views.clone()).sendToTarget();
                         try {
-                            Thread.sleep(Integer.parseInt(ref.get().pref.getString("pref_settings_create_summary_thread_sleep", "100")));
+                            Thread.sleep(THREAD_SLEEP);
                         } catch (InterruptedException e) {
-                            handler.sendEmptyMessage(0);
+                            handler.obtainMessage(0,2).sendToTarget();
                             return;
                         }
+                        handler.obtainMessage(5, views.clone()).sendToTarget();
                         views.clear();
                         rowbuffer_value = 0;
                         tr = new TableRow[ROW_BUFFER];
                     }
                 }
-                //views.add(tl);
                 if (views.size() > 0) {
-                    handler.obtainMessage(5, views.clone()).sendToTarget();
                     try {
-                        Thread.sleep(Integer.parseInt(ref.get().pref.getString("pref_settings_create_summary_thread_sleep", "100")));
+                        Thread.sleep(THREAD_SLEEP);
                     } catch (InterruptedException e) {
-                        handler.sendEmptyMessage(0);
+                        handler.obtainMessage(0,2).sendToTarget();
                         return;
                     }
+                    handler.obtainMessage(5, views.clone()).sendToTarget();
                     views.clear();
                 }
             }
@@ -578,10 +581,8 @@ public class MainActivity extends AppCompatActivity implements Observer {
             Data.getInstance().setFlag(Data.FLAG_DICE_ROLL, false);
         }
         if (Data.getInstance().getFlag(Data.FLAG_INTERRUPTED)) {
-            TextView rolls = (TextView) ref.get().findViewById(R.id.die_rolls);
             TextView total_result = (TextView)findViewById(R.id.total_result);
             total_result.setText(R.string.interrupted);
-            rolls.setText("");
             Data.getInstance().setFlag(Data.FLAG_INTERRUPTED, false);
         }
     }
