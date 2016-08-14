@@ -37,7 +37,6 @@ public class SQLiteHelper extends SQLiteOpenHelper {
     }
 
     public void onCreate(SQLiteDatabase db) {
-        Log.d(TAG, "Create table: " + FeedEntry.TABLE_NAME);
         db.execSQL(SQL_CREATE_ENTRIES);
     }
 

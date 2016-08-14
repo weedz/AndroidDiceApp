@@ -249,9 +249,9 @@ public class MainActivity extends AppCompatActivity implements Observer {
                     LinearLayout table_container = (LinearLayout) ref.get().findViewById(R.id.dice_summary_table_container);
                     TableLayout tl;
 
-                    for (int i = 1; i < dice.size(); i++) {
+                    for (int i = 0; i < dice.size(); i++) {
 
-                        tl = (TableLayout)table_container.findViewWithTag(ref.get().summaryTextFieldStart + dice.get(0));
+                        tl = (TableLayout)table_container.findViewWithTag(msg.arg1);
                         TextView existing = (TextView)tl.findViewWithTag(dice.keyAt(i)-1);
 
                         if (existing != null) {
@@ -292,7 +292,6 @@ public class MainActivity extends AppCompatActivity implements Observer {
             // Multi dice
             for (Integer key :
                     Data.getInstance().getMultiDice().keySet()) {
-                dice.put(0, key);
                 for (int i = 0; i < Data.getInstance().getMultiNrOfDice(key); i++) {
                     if (Thread.interrupted()) {
                         handler.obtainMessage(0,0).sendToTarget();
@@ -314,7 +313,7 @@ public class MainActivity extends AppCompatActivity implements Observer {
                             handler.obtainMessage(0,0).sendToTarget();
                             return;
                         }
-                        handler.obtainMessage(4, dice.clone()).sendToTarget();
+                        handler.obtainMessage(4, key, 0, dice.clone()).sendToTarget();
                         dice.clear();
                         dice.put(0, key);
                     }
@@ -325,7 +324,7 @@ public class MainActivity extends AppCompatActivity implements Observer {
                     handler.obtainMessage(0,0).sendToTarget();
                     return;
                 }
-                handler.obtainMessage(4, dice.clone()).sendToTarget();
+                handler.obtainMessage(4, key, 0, dice.clone()).sendToTarget();
                 dice.clear();
             }
             synchronized (MainActivity.this) {
@@ -414,7 +413,7 @@ public class MainActivity extends AppCompatActivity implements Observer {
 
                 tl = new TableLayout(MainActivity.this);
                 tl.setStretchAllColumns(true);
-                tl.setTag(ref.get().summaryTextFieldStart + key);
+                tl.setTag(key);
                 TextView tv_d = new TextView(ref.get());
                 tv_d.setGravity(Gravity.CENTER_HORIZONTAL);
                 tv_d.setTypeface(null, Typeface.BOLD);
