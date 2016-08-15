@@ -3,6 +3,7 @@ package com.weedz.dice;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Typeface;
 import android.os.Bundle;
@@ -380,6 +381,14 @@ public class MainActivity extends AppCompatActivity implements Observer {
                 ContentValues values = new ContentValues();
                 values.put(HistoryDB.History.COLUMN_NAME_DATA, sb.toString());
                 db.insert(HistoryDB.History.TABLE_NAME, null, values);
+                Cursor c = db.rawQuery("SELECT COUNT(*) FROM " + HistoryDB.History.TABLE_NAME, null);
+                c.moveToFirst();
+                if (c.getInt(0) > Integer.parseInt(pref.getString("pref_settings_history_limit", "100"))) {
+                    int limit = Integer.parseInt(pref.getString("pref_settings_history_limit", "100"));
+                    db.execSQL("DELETE FROM " + HistoryDB.History.TABLE_NAME + " WHERE rowid not in (SELECT rowid FROM " +
+                            HistoryDB.History.TABLE_NAME + " ORDER BY rowid desc LIMIT " + limit + ")");
+                }
+                c.close();
                 db.close();
             }
 
