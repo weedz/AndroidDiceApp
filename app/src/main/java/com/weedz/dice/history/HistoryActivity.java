@@ -17,6 +17,12 @@ import com.weedz.dice.database.HistoryDB;
 
 import java.util.ArrayList;
 
+/*
+
+TODO: change ListView to ExpandableListView
+
+ */
+
 public class HistoryActivity extends AppCompatActivity {
     private static final String TAG = "HistoryActivity";
     private ArrayList<String> values = new ArrayList<>();

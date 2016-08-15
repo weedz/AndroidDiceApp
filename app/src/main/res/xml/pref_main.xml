@@ -21,16 +21,20 @@
         android:summary="May cause lag"
         android:defaultValue="true" />
     <CheckBoxPreference
-        android:key="pref_settings_history"
-        android:title="Enable roll history"
-        android:defaultValue="false" />
+        android:key="pref_settings_dice_set_controls"
+        android:title="Dice-set controls"
+        android:defaultValue="true" />
 
     <PreferenceCategory
         android:key="pref_category_history"
-        android:title="History"
-        android:dependency="pref_settings_history">
+        android:title="History">
+        <CheckBoxPreference
+            android:key="pref_settings_history"
+            android:title="Enable roll history"
+            android:defaultValue="false" />
         <EditTextPreference
             android:key="pref_settings_history_limit"
+            android:dependency="pref_settings_history"
             android:title="History limit"
             android:defaultValue="100"
             android:inputType="number"/>

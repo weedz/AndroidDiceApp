@@ -1,7 +1,9 @@
 package com.weedz.dice;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
@@ -55,6 +57,14 @@ public class SettingsActivity extends AppCompatActivity implements SettingsFragm
             case R.id.action_help:
                 intent = new Intent(this, HelpActivity.class);
                 startActivity(intent);
+                break;
+            case R.id.set_default_settings:
+                SharedPreferences tmpPref = PreferenceManager.getDefaultSharedPreferences(this);
+                SharedPreferences.Editor editor = tmpPref.edit();
+                editor.clear();
+                editor.apply();
+                PreferenceManager.setDefaultValues(this, R.xml.pref_main, true);
+                recreate();
                 break;
 
         }

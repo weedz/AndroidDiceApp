@@ -10,6 +10,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.util.SparseIntArray;
 import android.view.Gravity;
 import android.view.Menu;
@@ -18,6 +19,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
@@ -136,9 +138,7 @@ public class MainActivity extends AppCompatActivity implements Observer {
                 try {
                     int nr = Integer.parseInt(set_dice_nr.getText().toString());
                     int sides = Integer.parseInt(set_dice_sides.getText().toString());
-                    if (nr >= 0 && sides > 1) {
-                        Data.getInstance().setMultiDice(nr, sides);
-                    }
+                    Data.getInstance().setMultiDice(nr, sides);
                 } catch (NumberFormatException e) {
                     //Log.i(TAG, "SetDie():NumberFormatException");
                 }
@@ -165,8 +165,6 @@ public class MainActivity extends AppCompatActivity implements Observer {
                 total_result.setText("Calculating...");
                 if (pref.getBoolean("pref_settings_detailed_roll", true)) {
                     rolls.setText("Rolling...");
-                } else {
-                    rolls.setText("");
                 }
                 Data.getInstance().roll();
             }
@@ -352,8 +350,6 @@ public class MainActivity extends AppCompatActivity implements Observer {
     private class RollUpdateUIThread extends Thread {
 
         public void run() {
-            final int BUFFER_LENGTH = Integer.parseInt(pref.getString("pref_Settings_detailed_roll_buffer", "100"));
-            final int THREAD_SLEEP = Integer.parseInt(pref.getString("pref_settings_detailed_roll_thread_sleep", "100"));
 
             StringBuilder sb = new StringBuilder(Data.getInstance().getMultiNrOfDice() * 2);
             // Multi dice
@@ -387,26 +383,31 @@ public class MainActivity extends AppCompatActivity implements Observer {
                 db.close();
             }
 
-            // Buffer
-            int start = 0;
-            int end;
-            while(start < sb.length()) {
-                if (Thread.interrupted()) {
-                    handler.obtainMessage(0,1).sendToTarget();
-                    return;
+            // Draw
+            if (pref.getBoolean("pref_settings_detailed_roll", true)) {
+                final int BUFFER_LENGTH = Integer.parseInt(pref.getString("pref_settings_detailed_roll_buffer", "100"));
+                final int THREAD_SLEEP = Integer.parseInt(pref.getString("pref_settings_detailed_roll_thread_sleep", "100"));
+
+                int start = 0;
+                int end;
+                while (start < sb.length()) {
+                    if (Thread.interrupted()) {
+                        handler.obtainMessage(0, 1).sendToTarget();
+                        return;
+                    }
+                    end = start + BUFFER_LENGTH;
+                    if (end > sb.length()) {
+                        end = sb.length();
+                    }
+                    try {
+                        Thread.sleep(THREAD_SLEEP);
+                    } catch (InterruptedException e) {
+                        handler.obtainMessage(0, 1).sendToTarget();
+                        return;
+                    }
+                    handler.obtainMessage(6, sb.substring(start, end)).sendToTarget();
+                    start += BUFFER_LENGTH;
                 }
-                end = start + BUFFER_LENGTH;
-                if (end > sb.length()) {
-                    end = sb.length();
-                }
-                try {
-                    Thread.sleep(THREAD_SLEEP);
-                } catch (InterruptedException e) {
-                    handler.obtainMessage(0,1).sendToTarget();
-                    return;
-                }
-                handler.obtainMessage(6, sb.substring(start, end)).sendToTarget();
-                start += BUFFER_LENGTH;
             }
 
             synchronized (MainActivity.this) {
@@ -442,6 +443,7 @@ public class MainActivity extends AppCompatActivity implements Observer {
                 tl.setTag(key);
                 TextView tv_d = new TextView(getApplicationContext());
                 tv_d.setGravity(Gravity.CENTER_HORIZONTAL);
+                tv_d.setTextAppearance(ref.get(), android.R.style.TextAppearance_Medium);
                 tv_d.setTypeface(null, Typeface.BOLD);
                 tv_d.setTextSize(TEXT_SIZE);
                 tv_d.setTag("d" + Data.getInstance().getMultiNrOfDice(key));
@@ -464,6 +466,7 @@ public class MainActivity extends AppCompatActivity implements Observer {
                         }
                         tv[j] = new TextView(getApplicationContext());
                         tv[j].setGravity(Gravity.CENTER_HORIZONTAL);
+                        tv[j].setTextAppearance(ref.get(), android.R.style.TextAppearance_Medium);
                         tv[j].setTypeface(null, Typeface.NORMAL);
                         tv[j].setTextSize(TEXT_SIZE);
                         if (counter < key) {
@@ -523,9 +526,11 @@ public class MainActivity extends AppCompatActivity implements Observer {
         LinearLayout table_container = (LinearLayout)findViewById(R.id.dice_summary_table_container);
         table_container.removeAllViews();
 
-        TextView rolls = (TextView) findViewById(R.id.die_rolls);
-        rolls.setTextSize(Float.parseFloat(pref.getString("pref_settings_detailed_roll_thread_font_size", "19")));
-        rolls.setText("");
+        if (pref.getBoolean("pref_settings_detailed_roll", true)) {
+            TextView rolls = (TextView) findViewById(R.id.die_rolls);
+            rolls.setTextSize(Float.parseFloat(pref.getString("pref_settings_detailed_roll_thread_font_size", "19")));
+            rolls.setText("");
+        }
 
         if (mRollUpdateThread != null) {
             mRollUpdateThread.interrupt();
@@ -540,16 +545,17 @@ public class MainActivity extends AppCompatActivity implements Observer {
             mUpdateTableThread = null;
         }
 
-        if (pref.getBoolean("pref_settings_summary", true)) {
-            mUpdateTableThread = new UpdateTableThread();
-            mUpdateTableThread.start();
-        }
+        if (Data.getInstance().getMultiDice().size() > 0) {
+            if (pref.getBoolean("pref_settings_summary", true)) {
+                mUpdateTableThread = new UpdateTableThread();
+                mUpdateTableThread.start();
+            }
 
-        if (pref.getBoolean("pref_settings_detailed_roll", true)) {
-            mRollUpdateThread = new RollUpdateUIThread();
-            mRollUpdateThread.start();
+            if (pref.getBoolean("pref_settings_detailed_roll", true) || pref.getBoolean("pref_settings_history", false)) {
+                mRollUpdateThread = new RollUpdateUIThread();
+                mRollUpdateThread.start();
+            }
         }
-
     }
 
     private void showDices() {
@@ -567,6 +573,26 @@ public class MainActivity extends AppCompatActivity implements Observer {
     @Override
     protected void onStart() {
         Data.getInstance().addObserver(this);
+
+        RelativeLayout summary = (RelativeLayout) findViewById(R.id.view_summary);
+        RelativeLayout detailed_roll = (RelativeLayout) findViewById(R.id.view_detailed_roll);
+        TableLayout dice_set_controls = (TableLayout) findViewById(R.id.dice_set_control);
+        if (!pref.getBoolean("pref_settings_detailed_roll", true)) {
+            detailed_roll.setVisibility(View.GONE);
+        } else {
+            detailed_roll.setVisibility(View.VISIBLE);
+        }
+        if (!pref.getBoolean("pref_settings_summary", true)) {
+            summary.setVisibility(View.GONE);
+        } else {
+            summary.setVisibility(View.VISIBLE);
+        }
+        if (!pref.getBoolean("pref_settings_dice_set_controls", true)) {
+            dice_set_controls.setVisibility(View.GONE);
+        } else {
+            dice_set_controls.setVisibility(View.VISIBLE);
+        }
+
         showDices();
         super.onStart();
     }

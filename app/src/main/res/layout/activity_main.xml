@@ -14,230 +14,239 @@
         android:paddingRight="@dimen/activity_horizontal_margin"
         android:paddingTop="@dimen/activity_vertical_margin">
 
-        <RelativeLayout
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:id="@+id/nrOfDice"
+            android:layout_alignParentTop="true"
+            android:layout_centerHorizontal="true"
+            android:layout_alignParentLeft="false"
+            android:layout_marginLeft="0dp"
+            android:layout_marginTop="0dp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:text="@string/results"
+            android:id="@+id/textView"
+            android:layout_below="@+id/nrOfDice"
+            android:layout_centerHorizontal="true"
+            android:layout_alignParentLeft="false"
+            android:layout_marginLeft="0dp"
+            android:layout_alignParentTop="false"
+            android:layout_marginTop="0dp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:id="@+id/total_result"
+            android:layout_below="@+id/textView"
+            android:layout_centerHorizontal="true"
+            android:textSize="30sp"
+            android:layout_alignParentLeft="false"
+            android:layout_alignParentTop="false" />
+
+        <LinearLayout
+            android:orientation="vertical"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_above="@+id/roll_die_button">
+            android:baselineAligned="false"
+            android:layout_above="@+id/dice_set_control"
+            android:layout_below="@+id/total_result"
+            android:focusable="false">
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textAppearance="?android:attr/textAppearanceMedium"
-                android:id="@+id/nrOfDice"
-                android:layout_alignParentTop="true"
-                android:layout_centerHorizontal="true"
-                android:layout_alignParentLeft="false"
-                android:layout_marginLeft="0dp"
-                android:layout_marginTop="0dp" />
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:id="@+id/view_detailed_roll"
+                android:layout_weight="50">
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textAppearance="?android:attr/textAppearanceMedium"
-                android:text="@string/results"
-                android:id="@+id/textView"
-                android:layout_below="@+id/nrOfDice"
-                android:layout_centerHorizontal="true"
-                android:layout_alignParentLeft="false"
-                android:layout_marginLeft="0dp"
-                android:layout_alignParentTop="false"
-                android:layout_marginTop="0dp" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textAppearance="?android:attr/textAppearanceLarge"
-                android:id="@+id/total_result"
-                android:layout_below="@+id/textView"
-                android:layout_centerHorizontal="true"
-                android:textSize="30sp"
-                android:layout_alignParentLeft="false"
-                android:layout_alignParentTop="false" />
-
-            <ScrollView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:id="@+id/scrollView"
-                android:layout_alignParentLeft="true"
-                android:layout_alignParentTop="false"
-                android:layout_alignParentRight="true"
-                android:layout_alignParentEnd="false"
-                android:layout_alignParentStart="false"
-                android:layout_below="@+id/total_result"
-                android:layout_centerHorizontal="true"
-                android:layout_alignParentBottom="true"
-                android:fillViewport="true">
-
-                <TextView
+                <ScrollView
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:textAppearance="?android:attr/textAppearanceMedium"
-                    android:id="@+id/die_rolls"
-                    android:enabled="true"
-                    android:textSize="20sp"
-                    android:gravity="center_horizontal" />
-            </ScrollView>
+                    android:layout_height="match_parent"
+                    android:id="@+id/scrollView"
+                    android:layout_alignParentLeft="true"
+                    android:layout_alignParentTop="false"
+                    android:layout_alignParentRight="true"
+                    android:layout_alignParentEnd="false"
+                    android:layout_alignParentStart="false"
+                    android:layout_centerHorizontal="true"
+                    android:fillViewport="true"
+                    android:measureAllChildren="false">
 
-        </RelativeLayout>
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:textAppearance="?android:attr/textAppearanceMedium"
+                        android:id="@+id/die_rolls"
+                        android:enabled="true"
+                        android:textSize="20sp"
+                        android:gravity="center_vertical|center_horizontal" />
+                </ScrollView>
+
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:id="@+id/view_summary"
+                android:focusable="false"
+                android:focusableInTouchMode="false"
+                android:layout_weight="50">
+
+                <ScrollView
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:id="@+id/scrollview_dice_summary"
+                    android:layout_alignParentTop="false"
+                    android:layout_alignParentBottom="false"
+                    android:layout_alignParentEnd="false"
+                    android:layout_alignParentStart="false"
+                    android:fillViewport="true"
+                    android:layout_alignParentLeft="true"
+                    android:layout_alignParentRight="true">
+
+                    <LinearLayout
+                        android:orientation="vertical"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:id="@+id/dice_summary_table_container"
+                        android:gravity="center_vertical">
+
+                    </LinearLayout>
+                </ScrollView>
+
+            </RelativeLayout>
+        </LinearLayout>
+
+        <TableLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:stretchColumns="*"
+            android:gravity="bottom"
+            android:id="@+id/dice_set_control"
+            android:layout_above="@+id/roll_die_button"
+            android:layout_alignParentStart="true"
+            android:focusable="true"
+            android:focusableInTouchMode="true">
+
+            <TableRow
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:baselineAligned="false">
+
+                <EditText
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:inputType="numberSigned"
+                    android:ems="1"
+                    android:id="@+id/add_die_nr"
+                    android:text="1"
+                    android:layout_gravity="center_vertical"
+                    android:layout_column="0"
+                    android:selectAllOnFocus="true" />
+
+                <EditText
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:inputType="numberSigned"
+                    android:ems="1"
+                    android:id="@+id/add_die_sides"
+                    android:text="6"
+                    android:layout_column="1"
+                    android:selectAllOnFocus="true" />
+
+                <EditText
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:inputType="numberSigned"
+                    android:ems="1"
+                    android:id="@+id/set_dice_nr"
+                    android:text="1"
+                    android:layout_column="2"
+                    android:selectAllOnFocus="true" />
+
+                <EditText
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:inputType="numberSigned"
+                    android:ems="1"
+                    android:id="@+id/set_dice_sides"
+                    android:text="6"
+                    android:layout_column="3"
+                    android:selectAllOnFocus="true" />
+
+                <EditText
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:inputType="numberSigned"
+                    android:ems="1"
+                    android:id="@+id/remove_die_nr"
+                    android:text="1"
+                    android:layout_column="4"
+                    android:selectAllOnFocus="true" />
+
+                <EditText
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:inputType="numberSigned"
+                    android:ems="1"
+                    android:id="@+id/remove_die_sides"
+                    android:text="6"
+                    android:layout_column="5"
+                    android:selectAllOnFocus="true" />
+            </TableRow>
+
+            <TableRow
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                style="?android:attr/buttonBarStyle">
+
+                <Button
+                    style="?android:attr/buttonBarButtonStyle"
+                    android:text="@string/add_die_bt"
+                    android:id="@+id/add_die_button"
+                    android:layout_column="0"
+                    android:layout_span="2" />
+
+                <Button
+                    style="?android:attr/buttonBarButtonStyle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/set_bt"
+                    android:id="@+id/set_dice_button"
+                    android:layout_column="2"
+                    android:layout_span="2" />
+
+                <Button
+
+                    style="?android:attr/buttonBarButtonStyle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/remove_die_bt"
+                    android:id="@+id/remove_die_button"
+                    android:layout_column="4"
+                    android:layout_span="2" />
+            </TableRow>
+
+        </TableLayout>
 
         <Button
-            android:layout_width="wrap_content"
+            android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:text="@string/roll"
             android:id="@+id/roll_die_button"
             android:textSize="24sp"
             android:paddingTop="30dp"
             android:paddingBottom="30dp"
-            android:layout_alignParentStart="true"
-            android:layout_alignEnd="@+id/relativeLayout"
-            android:layout_alignParentLeft="false"
-            android:layout_alignParentBottom="false"
-            android:layout_alignParentTop="false"
-            android:layout_alignParentEnd="true"
-            android:layout_alignParentRight="false"
-            android:layout_alignWithParentIfMissing="false"
-            android:layout_centerVertical="true" />
-
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:id="@+id/relativeLayout"
-            android:focusable="false"
-            android:focusableInTouchMode="true"
-            android:layout_below="@+id/roll_die_button">
-
-            <ScrollView
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:id="@+id/scrollview_dice_summary"
-                android:layout_alignParentTop="false"
-                android:layout_alignParentBottom="false"
-                android:layout_above="@+id/tableLayout"
-                android:layout_alignParentEnd="false"
-                android:layout_alignParentStart="false"
-                android:fillViewport="true">
-
-                <LinearLayout
-                    android:orientation="vertical"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:id="@+id/dice_summary_table_container">
-
-                </LinearLayout>
-            </ScrollView>
-
-            <TableLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_centerHorizontal="true"
-                android:stretchColumns="*"
-                android:layout_alignParentBottom="true"
-                android:layout_alignParentLeft="false"
-                android:layout_alignParentRight="false"
-                android:gravity="bottom"
-                android:id="@+id/tableLayout">
-
-                <TableRow
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:baselineAligned="false">
-
-                    <EditText
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:inputType="numberSigned"
-                        android:ems="1"
-                        android:id="@+id/add_die_nr"
-                        android:text="1"
-                        android:layout_gravity="center_vertical"
-                        android:layout_column="0"
-                        android:selectAllOnFocus="true" />
-
-                    <EditText
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:inputType="numberSigned"
-                        android:ems="1"
-                        android:id="@+id/add_die_sides"
-                        android:text="6"
-                        android:layout_column="1"
-                        android:selectAllOnFocus="true" />
-
-                    <EditText
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:inputType="numberSigned"
-                        android:ems="1"
-                        android:id="@+id/set_dice_nr"
-                        android:text="1"
-                        android:layout_column="2"
-                        android:selectAllOnFocus="true" />
-
-                    <EditText
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:inputType="numberSigned"
-                        android:ems="1"
-                        android:id="@+id/set_dice_sides"
-                        android:text="6"
-                        android:layout_column="3"
-                        android:selectAllOnFocus="true" />
-
-                    <EditText
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:inputType="numberSigned"
-                        android:ems="1"
-                        android:id="@+id/remove_die_nr"
-                        android:text="1"
-                        android:layout_column="4"
-                        android:selectAllOnFocus="true" />
-
-                    <EditText
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:inputType="numberSigned"
-                        android:ems="1"
-                        android:id="@+id/remove_die_sides"
-                        android:text="6"
-                        android:layout_column="5"
-                        android:selectAllOnFocus="true" />
-                </TableRow>
-
-                <TableRow
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    style="?android:attr/buttonBarStyle">
-
-                    <Button
-                        style="?android:attr/buttonBarButtonStyle"
-                        android:text="@string/add_die_bt"
-                        android:id="@+id/add_die_button"
-                        android:layout_column="0"
-                        android:layout_span="2" />
-
-                    <Button
-                        style="?android:attr/buttonBarButtonStyle"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/set_bt"
-                        android:id="@+id/set_dice_button"
-                        android:layout_column="2"
-                        android:layout_span="2" />
-
-                    <Button
-
-                        style="?android:attr/buttonBarButtonStyle"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/remove_die_bt"
-                        android:id="@+id/remove_die_button"
-                        android:layout_column="4"
-                        android:layout_span="2" />
-                </TableRow>
-            </TableLayout>
-
-        </RelativeLayout>
+            android:layout_alignParentBottom="true"
+            android:layout_centerHorizontal="true"
+            android:layout_alignParentEnd="false"
+            android:layout_alignParentStart="false"
+            android:singleLine="true" />
 
     </RelativeLayout>
 </LinearLayout>

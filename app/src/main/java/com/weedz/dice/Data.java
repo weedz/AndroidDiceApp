@@ -170,7 +170,6 @@ public class Data extends Observable {
                     case 0: // Interrupted
                         ref.get().setFlag(FLAG_INTERRUPTED, true);
                         ref.get().setUpdate();
-                        Thread.currentThread().interrupt();
                         break;
                     case 1: // Roll finished
                         ref.get().setFlag(FLAG_DICE_ROLL, true);
