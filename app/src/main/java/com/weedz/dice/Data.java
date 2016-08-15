@@ -1,14 +1,8 @@
 package com.weedz.dice;
 
-import android.os.Handler;
-import android.os.Message;
-import android.util.Log;
-
-import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Observable;
-import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -35,10 +29,6 @@ public class Data extends Observable {
 
     private int mTotal = 0;
 
-    private RollThread mRollThread;
-    private WeakReference<Data> ref = new WeakReference<>(this);
-    private RollHandler handler = new RollHandler(ref);
-
     private Data() {
         Arrays.fill(flags, false);
 
@@ -62,9 +52,6 @@ public class Data extends Observable {
 
     // MultiDice
     public synchronized void addMultiDice(int nr, int sides) {
-        if (mRollThread != null && mRollThread.isAlive()) {
-            mRollThread.interrupt();
-        }
         if (sides <= 0 || nr <= 0) {
             return;
         }
@@ -78,9 +65,6 @@ public class Data extends Observable {
         setUpdate();
     }
     public synchronized void removeMultiDice(int nr, int sides) {
-        if (mRollThread != null && mRollThread.isAlive()) {
-            mRollThread.interrupt();
-        }
         if (sides <= 0 || nr <= 0) {
             return;
         }
@@ -99,9 +83,6 @@ public class Data extends Observable {
         setUpdate();
     }
     public synchronized void setMultiDice(int nr, int sides) {
-        if (mRollThread != null && mRollThread.isAlive()) {
-            mRollThread.interrupt();
-        }
         multiDice.clear();
         if (nr > 0 && sides > 0) {
             addMultiDice(nr, sides);
@@ -111,9 +92,6 @@ public class Data extends Observable {
         }
     }
     public synchronized int getMultiDie(int sides, int i) {
-        if (mRollThread != null && mRollThread.isAlive()) {
-            mRollThread.interrupt();
-        }
         if (sides > 0 && multiDice.get(sides) != null) {
             if (multiDice.get(sides).get(i) != null) {
                 return multiDice.get(sides).get(i);
@@ -130,10 +108,6 @@ public class Data extends Observable {
 
         for (Integer key :
                 multiDice.keySet()) {
-            if (Thread.interrupted()) {
-                handler.sendEmptyMessage(1);
-                return 0;
-            }
             total += multiDice.get(key).size();
         }
         return total;
@@ -149,7 +123,7 @@ public class Data extends Observable {
         return mTotal;
     }
 
-    public int getTotal(int sides, int nr) {
+    public synchronized int getTotal(int sides, int nr) {
         int total = 0;
         for (int i = 0; i < multiDice.get(sides).size(); i++) {
             if (multiDice.get(sides).get(i) == nr) {
@@ -158,68 +132,7 @@ public class Data extends Observable {
         }
         return total;
     }
-
-    public synchronized void roll() {
-        if (mRollThread != null) {
-            mRollThread.interrupt();
-            mRollThread = null;
-        }
-        mRollThread = new RollThread();
-        mRollThread.start();
-    }
-
-    static class RollHandler extends Handler {
-        WeakReference<Data> ref;
-        public RollHandler(WeakReference<Data> ref){
-            this.ref = ref;
-        }
-
-        @Override
-        public void handleMessage(Message msg) {
-            if (!Thread.currentThread().isInterrupted()) {
-                switch (msg.what) {
-                    case 0: // Interrupted
-                        ref.get().setFlag(FLAG_INTERRUPTED, true);
-                        ref.get().setUpdate();
-                        break;
-                    case 1: // Roll finished
-                        ref.get().setFlag(FLAG_DICE_ROLL, true);
-                        ref.get().setUpdate();
-                        break;
-                }
-            } else {
-                ref.get().setFlag(FLAG_INTERRUPTED, true);
-                ref.get().setUpdate();
-            }
-            super.handleMessage(msg);
-        }
-    }
-
-    private class RollThread extends Thread {
-
-        public void run() {
-            int roll;
-            mTotal = 0;
-
-            Random r = new Random();
-            for (Integer key :
-                    multiDice.keySet()) {
-                for (int j = 0; j < multiDice.get(key).size(); j++) {
-                    roll = (int)(r.nextDouble() * key + 1);
-                    mTotal += roll;
-                    if (Thread.interrupted()) {
-                        handler.sendEmptyMessage(0);
-                        return;
-                    }
-                    multiDice.get(key).set(j, roll);
-                }
-            }
-
-            handler.sendEmptyMessage(1);
-            synchronized (Data.this) {
-                mRollThread = null;
-            }
-        }
-
+    public void setTotal(int total) {
+        mTotal = total;
     }
 }

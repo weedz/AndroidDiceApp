@@ -242,6 +242,7 @@ public class BookmarksActivity extends AppCompatActivity {
                                     sidesList.get(i));
                         }
                         Toast.makeText(BookmarksActivity.this, c.getString(1) + " Loaded", Toast.LENGTH_SHORT).show();
+                        finish();
                     } else {
                         Log.d(TAG, "Empty return for entry_id " + position);
                     }
