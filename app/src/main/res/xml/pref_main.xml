@@ -71,22 +71,6 @@
             android:defaultValue="20"
             android:inputType="numberDecimal" />
         <EditTextPreference
-            android:key="pref_settings_summary_thread_sleep"
-            android:title="Summary thread sleep"
-            android:defaultValue="0"
-            android:inputType="number" />
-        <EditTextPreference
-            android:key="pref_Settings_summary_buffer"
-            android:title="Summary buffer"
-            android:defaultValue="1000"
-            android:inputType="number" />
-    </PreferenceCategory>
-
-    <PreferenceCategory
-        android:key="pref_category_summary_table"
-        android:dependency="pref_settings_summary"
-        android:title="Roll summary table settings">
-        <EditTextPreference
             android:key="pref_settings_summary_table_columns"
             android:title="Summary table columns"
             android:defaultValue="3"

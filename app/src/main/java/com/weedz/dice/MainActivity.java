@@ -12,7 +12,6 @@ import android.os.Message;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
-import android.util.SparseIntArray;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -41,7 +40,6 @@ public class MainActivity extends AppCompatActivity implements Observer {
 
     // Threading stuff
     private RollUpdateUIThread mRollUpdateThread;
-    private PopulateSummaryTableThread mSummaryUpdateThread;
     private UpdateTableThread mUpdateTableThread;
     private WeakReference<MainActivity> ref = new WeakReference<>(this);
     private UpdateUIHandler handler = new UpdateUIHandler(ref);
@@ -68,10 +66,6 @@ public class MainActivity extends AppCompatActivity implements Observer {
                     mRollUpdateThread.interrupt();
                     mRollUpdateThread = null;
                 }
-                if (mSummaryUpdateThread != null) {
-                    mSummaryUpdateThread.interrupt();
-                    mSummaryUpdateThread = null;
-                }
                 if (mUpdateTableThread != null) {
                     mUpdateTableThread.interrupt();
                     mUpdateTableThread = null;
@@ -96,10 +90,6 @@ public class MainActivity extends AppCompatActivity implements Observer {
                 if (mRollUpdateThread != null) {
                     mRollUpdateThread.interrupt();
                     mRollUpdateThread = null;
-                }
-                if (mSummaryUpdateThread != null) {
-                    mSummaryUpdateThread.interrupt();
-                    mSummaryUpdateThread = null;
                 }
                 if (mUpdateTableThread != null) {
                     mUpdateTableThread.interrupt();
@@ -126,10 +116,6 @@ public class MainActivity extends AppCompatActivity implements Observer {
                     mRollUpdateThread.interrupt();
                     mRollUpdateThread = null;
                 }
-                if (mSummaryUpdateThread != null) {
-                    mSummaryUpdateThread.interrupt();
-                    mSummaryUpdateThread = null;
-                }
                 if (mUpdateTableThread != null) {
                     mUpdateTableThread.interrupt();
                     mUpdateTableThread = null;
@@ -153,20 +139,19 @@ public class MainActivity extends AppCompatActivity implements Observer {
                     mRollUpdateThread.interrupt();
                     mRollUpdateThread = null;
                 }
-                if (mSummaryUpdateThread != null) {
-                    mSummaryUpdateThread.interrupt();
-                    mSummaryUpdateThread = null;
-                }
                 if (mUpdateTableThread != null) {
                     mUpdateTableThread.interrupt();
                     mUpdateTableThread = null;
                 }
-                TextView rolls = (TextView) ref.get().findViewById(R.id.die_rolls);
                 TextView total_result = (TextView)findViewById(R.id.total_result);
                 total_result.setText("Calculating...");
                 if (pref.getBoolean("pref_settings_detailed_roll", true)) {
-                    rolls.setText("Rolling...");
+                    TextView rolls = (TextView) ref.get().findViewById(R.id.die_rolls);
+                    rolls.setText("");
                 }
+                LinearLayout table_container = (LinearLayout)findViewById(R.id.dice_summary_table_container);
+                table_container.removeAllViews();
+
                 Data.getInstance().roll();
             }
         });
@@ -239,7 +224,7 @@ public class MainActivity extends AppCompatActivity implements Observer {
             if (!Thread.currentThread().isInterrupted()) {
                 // Interrupted
                 if (msg.what == 0) {
-                    if ((int)msg.obj == 0 || (int)msg.obj == 2) {
+                    if ((int)msg.obj == 2) {
                         LinearLayout table_container = (LinearLayout) ref.get().findViewById(R.id.dice_summary_table_container);
                         TableRow tr = new TableRow(ref.get());
                         TextView textView = new TextView(ref.get());
@@ -257,34 +242,12 @@ public class MainActivity extends AppCompatActivity implements Observer {
                     }
                     Thread.currentThread().interrupt();
                 }
-                // Populate summary table
-                if (msg.what == 4) {
-                    SparseIntArray dice = (SparseIntArray)msg.obj;
-
-                    LinearLayout table_container = (LinearLayout) ref.get().findViewById(R.id.dice_summary_table_container);
-                    TableLayout tl;
-
-                    for (int i = 0; i < dice.size(); i++) {
-
-                        tl = (TableLayout)table_container.findViewWithTag(msg.arg1);
-                        TextView existing = (TextView)tl.findViewWithTag(dice.keyAt(i)-1);
-
-                        if (existing != null) {
-                            String str = existing.getText().toString();
-                            int nr = Integer.parseInt(str.substring(str.indexOf(":") + 1)) + dice.get(dice.keyAt(i));
-
-                            existing.setText(dice.keyAt(i) + ":" + Integer.toString(nr));
-                        }
-                    }
-                }
                 // Fill summary scroll view with tables
                 if (msg.what == 5) {
                     LinearLayout table_container = (LinearLayout) ref.get().findViewById(R.id.dice_summary_table_container);
                     for (View v :
                             (ArrayList<View>) msg.obj) {
-                        if (v.getTag() != null) {
-                            table_container.addView(v);
-                        }
+                        table_container.addView(v);
                     }
                 }
                 // Show detailed roll
@@ -294,57 +257,6 @@ public class MainActivity extends AppCompatActivity implements Observer {
                 }
             }
             super.handleMessage(msg);
-        }
-    }
-
-    private class PopulateSummaryTableThread extends Thread {
-
-        public void run() {
-            final int BUFFER_LENGTH = Integer.parseInt(pref.getString("pref_Settings_summary_buffer", "100"));
-            final int THREAD_SLEEP = Integer.parseInt(pref.getString("pref_settings_summary_thread_sleep", "100"));
-
-            SparseIntArray dice = new SparseIntArray();
-            // Multi dice
-            for (Integer key :
-                    Data.getInstance().getMultiDice().keySet()) {
-                for (int i = 0; i < Data.getInstance().getMultiNrOfDice(key); i++) {
-                    if (Thread.interrupted()) {
-                        handler.obtainMessage(0,0).sendToTarget();
-                        return;
-                    }
-                    if (Data.getInstance().getMultiDie(key, i) == 0) {
-                        handler.obtainMessage(0,0).sendToTarget();
-                        return;
-                    }
-                    if (dice.get(Data.getInstance().getMultiDie(key, i)) == 0) {
-                        dice.put(Data.getInstance().getMultiDie(key, i), 1);
-                    } else {
-                        dice.put(Data.getInstance().getMultiDie(key, i), dice.get(Data.getInstance().getMultiDie(key, i)) + 1);
-                    }
-                    if (i > 0 && i % BUFFER_LENGTH == 0) {
-                        try {
-                            Thread.sleep(THREAD_SLEEP);
-                        } catch (InterruptedException e) {
-                            handler.obtainMessage(0,0).sendToTarget();
-                            return;
-                        }
-                        handler.obtainMessage(4, key, 0, dice.clone()).sendToTarget();
-                        dice.clear();
-                        dice.put(0, key);
-                    }
-                }
-                try {
-                    Thread.sleep(THREAD_SLEEP);
-                } catch (InterruptedException e) {
-                    handler.obtainMessage(0,0).sendToTarget();
-                    return;
-                }
-                handler.obtainMessage(4, key, 0, dice.clone()).sendToTarget();
-                dice.clear();
-            }
-            synchronized (MainActivity.this) {
-                mSummaryUpdateThread = null;
-            }
         }
     }
 
@@ -429,9 +341,9 @@ public class MainActivity extends AppCompatActivity implements Observer {
 
         public void run() {
             final float TEXT_SIZE = Float.parseFloat(pref.getString("pref_settings_summary_font_size", "20"));
-            final int ROW_BUFFER = Integer.parseInt(pref.getString("pref_settings_create_summary_row_buffer", "50"));
-            final int THREAD_SLEEP = Integer.parseInt(pref.getString("pref_settings_create_summary_thread_sleep", "100"));
-            final int COLUMNS = Integer.parseInt(pref.getString("pref_settings_summary_table_columns", "50"));
+            final int ROW_BUFFER = Integer.parseInt(pref.getString("pref_settings_create_summary_row_buffer", "500"));
+            final int THREAD_SLEEP = Integer.parseInt(pref.getString("pref_settings_create_summary_thread_sleep", "0"));
+            final int COLUMNS = Integer.parseInt(pref.getString("pref_settings_summary_table_columns", "3"));
 
             // Multi dice
             int counter;
@@ -455,7 +367,6 @@ public class MainActivity extends AppCompatActivity implements Observer {
                 tv_d.setTextAppearance(ref.get(), android.R.style.TextAppearance_Medium);
                 tv_d.setTypeface(null, Typeface.BOLD);
                 tv_d.setTextSize(TEXT_SIZE);
-                tv_d.setTag("d" + Data.getInstance().getMultiNrOfDice(key));
                 tv_d.setText(Data.getInstance().getMultiNrOfDice(key) + "d" + key);
                 views.add(tv_d);
                 views.add(tl);
@@ -479,8 +390,9 @@ public class MainActivity extends AppCompatActivity implements Observer {
                         tv[j].setTypeface(null, Typeface.NORMAL);
                         tv[j].setTextSize(TEXT_SIZE);
                         if (counter < key) {
+                            int nr = Data.getInstance().getTotal(key, counter+1);
                             tv[j].setTag(counter);
-                            tv[j].setText((counter + 1) + ":0");
+                            tv[j].setText((counter + 1) + ":" + nr);
                         }
                         tr[rowIndex].addView(tv[j]);
                         counter++;
@@ -513,17 +425,7 @@ public class MainActivity extends AppCompatActivity implements Observer {
             synchronized (MainActivity.this) {
                 mUpdateTableThread = null;
             }
-            populateTable();
         }
-    }
-
-    private synchronized void populateTable() {
-        if (mSummaryUpdateThread != null) {
-            mSummaryUpdateThread.interrupt();
-            mSummaryUpdateThread = null;
-        }
-        mSummaryUpdateThread = new PopulateSummaryTableThread();
-        mSummaryUpdateThread.start();
     }
 
     // TODO: add buttons for disabled features
@@ -544,10 +446,6 @@ public class MainActivity extends AppCompatActivity implements Observer {
         if (mRollUpdateThread != null) {
             mRollUpdateThread.interrupt();
             mRollUpdateThread = null;
-        }
-        if (mSummaryUpdateThread != null) {
-            mSummaryUpdateThread.interrupt();
-            mSummaryUpdateThread = null;
         }
         if (mUpdateTableThread != null) {
             mUpdateTableThread.interrupt();
@@ -622,9 +520,9 @@ public class MainActivity extends AppCompatActivity implements Observer {
             mRollUpdateThread.interrupt();
             mRollUpdateThread = null;
         }
-        if (mSummaryUpdateThread != null) {
-            mSummaryUpdateThread.interrupt();
-            mSummaryUpdateThread = null;
+        if (mUpdateTableThread != null) {
+            mUpdateTableThread.interrupt();
+            mUpdateTableThread = null;
         }
         Data.getInstance().deleteObserver(this);
         super.onStop();

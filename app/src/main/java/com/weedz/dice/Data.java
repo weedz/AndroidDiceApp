@@ -8,6 +8,7 @@ import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Observable;
+import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -148,6 +149,16 @@ public class Data extends Observable {
         return mTotal;
     }
 
+    public int getTotal(int sides, int nr) {
+        int total = 0;
+        for (int i = 0; i < multiDice.get(sides).size(); i++) {
+            if (multiDice.get(sides).get(i) == nr) {
+                total++;
+            }
+        }
+        return total;
+    }
+
     public synchronized void roll() {
         if (mRollThread != null) {
             mRollThread.interrupt();
@@ -190,10 +201,11 @@ public class Data extends Observable {
             int roll;
             mTotal = 0;
 
+            Random r = new Random();
             for (Integer key :
                     multiDice.keySet()) {
                 for (int j = 0; j < multiDice.get(key).size(); j++) {
-                    roll = (int)(Math.random()*key+1);
+                    roll = (int)(r.nextDouble() * key + 1);
                     mTotal += roll;
                     if (Thread.interrupted()) {
                         handler.sendEmptyMessage(0);
