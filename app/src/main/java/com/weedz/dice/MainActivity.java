@@ -143,13 +143,24 @@ public class MainActivity extends AppCompatActivity implements Observer {
                 }
                 TextView total_result = (TextView)findViewById(R.id.total_result);
                 total_result.setText("Calculating...");
-                if (pref.getBoolean("pref_settings_detailed_roll", true)) {
-                    TextView rolls = (TextView) findViewById(R.id.die_rolls);
-                    rolls.setTextSize(Float.parseFloat(pref.getString("pref_settings_detailed_roll_thread_font_size", "19")));
-                    rolls.setText("");
-                }
+                TextView rolls = (TextView) findViewById(R.id.die_rolls);
+                rolls.setTextSize(Float.parseFloat(pref.getString("pref_settings_detailed_roll_thread_font_size", "19")));
+                rolls.setText("");
+
                 LinearLayout table_container = (LinearLayout)findViewById(R.id.dice_summary_table_container);
                 table_container.removeAllViews();
+                if (pref.getBoolean("pref_settings_summary", true)) {
+                    TableRow tr = new TableRow(ref.get());
+                    tr.setTag("calculating");
+                    TextView textView = new TextView(ref.get());
+                    textView.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
+                    textView.setGravity(Gravity.CENTER_HORIZONTAL);
+                    textView.setTypeface(null, Typeface.NORMAL);
+                    textView.setText("Calculating...");
+                    tr.addView(textView);
+                    table_container.addView(tr);
+                }
+
 
                 //Data.getInstance().roll();
                 if (mRollThread != null) {
@@ -227,20 +238,14 @@ public class MainActivity extends AppCompatActivity implements Observer {
         @Override
         public void handleMessage(Message msg) {
             if (!Thread.currentThread().isInterrupted()) {
-                // Interrupted
-                if (msg.what == 0) {
-                    if ((int)msg.obj == 2) {
-                        //
-                    }
-                    if ((int)msg.obj == 1) {
-                        TextView rolls = (TextView) ref.get().findViewById(R.id.die_rolls);
-                        rolls.setText(R.string.interrupted);
-                    }
-                    //Thread.currentThread().interrupt();
-                }
                 // Fill summary scroll view with tables
                 if (msg.what == 5) {
+                    //
                     LinearLayout table_container = (LinearLayout) ref.get().findViewById(R.id.dice_summary_table_container);
+                    if (table_container.getChildCount() == 1) {
+                        table_container.removeAllViews();
+                    }
+
                     for (View v :
                             (ArrayList<View>) msg.obj) {
                         if (v.getTag() != null) {
