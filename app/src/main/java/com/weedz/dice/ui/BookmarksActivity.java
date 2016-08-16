@@ -1,4 +1,4 @@
-package com.weedz.dice.bookmarks;
+package com.weedz.dice.ui;
 
 import android.content.ContentValues;
 import android.database.Cursor;
@@ -18,6 +18,7 @@ import android.widget.ToggleButton;
 import com.weedz.dice.Data;
 import com.weedz.dice.R;
 import com.weedz.dice.ViewUtils;
+import com.weedz.dice.bookmarks.BookmarksListAdapter;
 import com.weedz.dice.database.BookmarksDB;
 import com.weedz.dice.database.DiceDB;
 

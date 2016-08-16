@@ -1,15 +1,19 @@
-package com.weedz.dice;
+package com.weedz.dice.ui;
 
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 
-public class HelpActivity extends AppCompatActivity {
+import com.weedz.dice.R;
+import com.weedz.dice.ViewUtils;
+
+public class AboutActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         ViewUtils.ApplyTheme(this);
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_help);
+        setContentView(R.layout.activity_about);
+
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
     }
 }

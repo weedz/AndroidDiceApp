@@ -7,7 +7,7 @@ android {
         applicationId "com.weedz.dice"
         minSdkVersion 18
         targetSdkVersion 24
-        versionCode 4
+        versionCode 5
         versionName "0.0.1"
     }
     buildTypes {
@@ -26,4 +26,5 @@ dependencies {
     compile 'com.android.support:appcompat-v7:24.1.1'
     compile 'com.android.support:support-v4:24.1.1'
     compile 'com.android.support:design:24.1.1'
+    compile 'com.android.support:recyclerview-v7:24.1.1'
 }

@@ -14,7 +14,7 @@ import java.util.ArrayList;
 /**
  * Created by WeeDz on 2016-08-12.
  */
-class BookmarksListAdapter extends ArrayAdapter<String> {
+public class BookmarksListAdapter extends ArrayAdapter<String> {
 
     private static final String TAG = "BookmarksListAdapter";
 

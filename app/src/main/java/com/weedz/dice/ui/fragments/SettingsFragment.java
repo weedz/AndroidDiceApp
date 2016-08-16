@@ -1,10 +1,12 @@
-package com.weedz.dice;
+package com.weedz.dice.ui.fragments;
 
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceFragment;
 import android.widget.Toast;
+
+import com.weedz.dice.R;
 
 public class SettingsFragment extends PreferenceFragment implements SharedPreferences.OnSharedPreferenceChangeListener {
     public interface OnResourceUpdatedListener {

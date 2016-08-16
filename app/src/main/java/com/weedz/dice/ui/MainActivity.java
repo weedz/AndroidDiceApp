@@ -1,4 +1,4 @@
-package com.weedz.dice;
+package com.weedz.dice.ui;
 
 import android.content.ContentValues;
 import android.content.Intent;
@@ -11,7 +11,6 @@ import android.os.Handler;
 import android.os.Message;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -24,10 +23,11 @@ import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
 
-import com.weedz.dice.bookmarks.BookmarksActivity;
+import com.weedz.dice.Data;
+import com.weedz.dice.R;
+import com.weedz.dice.ViewUtils;
 import com.weedz.dice.database.DiceDB;
 import com.weedz.dice.database.HistoryDB;
-import com.weedz.dice.history.HistoryActivity;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;

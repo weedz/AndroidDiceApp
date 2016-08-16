@@ -1,4 +1,4 @@
-package com.weedz.dice.history;
+package com.weedz.dice.ui;
 
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -14,6 +14,7 @@ import com.weedz.dice.R;
 import com.weedz.dice.ViewUtils;
 import com.weedz.dice.database.DiceDB;
 import com.weedz.dice.database.HistoryDB;
+import com.weedz.dice.history.HistoryListAdapter;
 
 import java.util.ArrayList;
 

@@ -1,15 +1,18 @@
-package com.weedz.dice;
+package com.weedz.dice.ui;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
-public class SettingsActivity extends AppCompatActivity implements SettingsFragment.OnResourceUpdatedListener{
+import com.weedz.dice.R;
+import com.weedz.dice.ui.fragments.SettingsFragment;
+import com.weedz.dice.ViewUtils;
+
+public class SettingsActivity extends AppCompatActivity implements SettingsFragment.OnResourceUpdatedListener {
 
     private static final String TAG = "SettingsActivity";
     private int resourceState = 0;
