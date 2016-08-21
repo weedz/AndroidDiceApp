@@ -24,6 +24,10 @@
         android:key="pref_settings_dice_set_controls"
         android:title="Dice-set controls"
         android:defaultValue="true" />
+    <CheckBoxPreference
+        android:key="pref_settings_accelerometer"
+        android:title="Seed random with accelerometer"
+        android:defaultValue="false" />
 
     <PreferenceCategory
         android:key="pref_category_history"

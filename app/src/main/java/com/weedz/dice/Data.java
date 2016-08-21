@@ -21,13 +21,13 @@ public class Data extends Observable {
     public static final int FLAG_DICE_ROLL = 1;
     public static final int FLAG_THREAD_LOCK = 2;
     public static final int FLAG_INTERRUPTED = 3;
-    // flags
     private Boolean[] flags = new Boolean[4];
 
     // Different sized dice
     private volatile ConcurrentHashMap<Integer, ArrayList<Integer>> multiDice;
 
     private int mTotal = 0;
+    private long seed;
 
     private Data() {
         Arrays.fill(flags, false);
@@ -134,5 +134,12 @@ public class Data extends Observable {
     }
     public void setTotal(int total) {
         mTotal = total;
+    }
+
+    public long getSeed() {
+        return seed;
+    }
+    public void setSeed(long seed) {
+        this.seed = seed;
     }
 }
