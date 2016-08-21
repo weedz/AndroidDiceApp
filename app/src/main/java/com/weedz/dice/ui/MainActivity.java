@@ -428,9 +428,8 @@ public class MainActivity extends AppCompatActivity implements Observer, SensorE
             int total = 0;
             Random r;
 
-            long seed = getInstance().getSeed();
-            if (seed != 0) {
-                r = new Random(seed);
+            if (pref.getBoolean("pref_settings_accelerometer", false)) {
+                r = new Random(getInstance().getSeed());
             } else {
                 r = new Random();
             }
