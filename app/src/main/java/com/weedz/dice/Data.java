@@ -5,9 +5,6 @@ import java.util.Arrays;
 import java.util.Observable;
 import java.util.concurrent.ConcurrentHashMap;
 
-/**
- * Created by WeeDz on 2016-08-07.
- */
 public class Data extends Observable {
     private static final String TAG = "Data";
 

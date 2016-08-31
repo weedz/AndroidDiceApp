@@ -39,8 +39,6 @@ import java.util.Observable;
 import java.util.Observer;
 import java.util.Random;
 
-import static com.weedz.dice.Data.getInstance;
-
 public class MainActivity extends AppCompatActivity implements Observer, SensorEventListener {
 
     private static final String TAG = "HomeActivity";
@@ -85,7 +83,7 @@ public class MainActivity extends AppCompatActivity implements Observer, SensorE
                 try {
                     int nr = Integer.parseInt(add_die_nr.getText().toString());
                     int sides = Integer.parseInt(add_die_sides.getText().toString());
-                    getInstance().addMultiDice(nr, sides);
+                    Data.getInstance().addMultiDice(nr, sides);
                 } catch (NumberFormatException e) {
                     //Log.i(TAG, "AddDie():NumberFormatException");
                 }
@@ -108,7 +106,7 @@ public class MainActivity extends AppCompatActivity implements Observer, SensorE
                 try {
                     int nr = Integer.parseInt(remove_die_nr.getText().toString());
                     int sides = Integer.parseInt(remove_die_sides.getText().toString());
-                    getInstance().removeMultiDice(nr, sides);
+                    Data.getInstance().removeMultiDice(nr, sides);
                 } catch (NumberFormatException e) {
                     //Log.i(TAG, "RemoveDie():NumberFormatException");
                 }
@@ -131,7 +129,7 @@ public class MainActivity extends AppCompatActivity implements Observer, SensorE
                 try {
                     int nr = Integer.parseInt(set_dice_nr.getText().toString());
                     int sides = Integer.parseInt(set_dice_sides.getText().toString());
-                    getInstance().setMultiDice(nr, sides);
+                    Data.getInstance().setMultiDice(nr, sides);
                 } catch (NumberFormatException e) {
                     //Log.i(TAG, "SetDie():NumberFormatException");
                 }
@@ -179,7 +177,7 @@ public class MainActivity extends AppCompatActivity implements Observer, SensorE
         });
 
         showDices();
-        getInstance().addObserver(this);
+        Data.getInstance().addObserver(this);
     }
 
     @Override
@@ -238,7 +236,7 @@ public class MainActivity extends AppCompatActivity implements Observer, SensorE
     public void onSensorChanged(SensorEvent sensorEvent) {
         float seed = sensorEvent.values[0] + sensorEvent.values[1] + sensorEvent.values[2];
         seed = Math.round(seed * 1000000);
-        getInstance().setSeed((long)seed);
+        Data.getInstance().setSeed((long)seed);
     }
 
     @Override
@@ -289,19 +287,19 @@ public class MainActivity extends AppCompatActivity implements Observer, SensorE
 
         public void run() {
 
-            StringBuilder sb = new StringBuilder(getInstance().getMultiNrOfDice() * 2);
+            StringBuilder sb = new StringBuilder(Data.getInstance().getMultiNrOfDice() * 2);
             // Multi dice
             for (Integer key :
-                    getInstance().getMultiDice().keySet()) {
+                    Data.getInstance().getMultiDice().keySet()) {
                 if (Thread.interrupted()) {
                     return;
                 }
-                sb.append(getInstance().getMultiDice().get(key).size()).append("d").append(key).append("(");
-                for (int i = 0; i < getInstance().getMultiNrOfDice(key); i++) {
+                sb.append(Data.getInstance().getMultiDice().get(key).size()).append("d").append(key).append("(");
+                for (int i = 0; i < Data.getInstance().getMultiNrOfDice(key); i++) {
                     if (Thread.interrupted()) {
                         return;
                     }
-                    sb.append(getInstance().getMultiDie(key, i)).append(",");
+                    sb.append(Data.getInstance().getMultiDie(key, i)).append(",");
                 }
                 if (sb.length() > 0) {
                     sb.deleteCharAt(sb.length() - 1);
@@ -367,7 +365,7 @@ public class MainActivity extends AppCompatActivity implements Observer, SensorE
             ArrayList<View> views = new ArrayList<>();
 
             for (Integer key :
-                    getInstance().getMultiDice().keySet()) {
+                    Data.getInstance().getMultiDice().keySet()) {
 
                 tl = new TableLayout(MainActivity.this);
                 tl.setStretchAllColumns(true);
@@ -377,7 +375,7 @@ public class MainActivity extends AppCompatActivity implements Observer, SensorE
                 tv_d.setTextAppearance(ref.get(), android.R.style.TextAppearance_Medium);
                 tv_d.setTypeface(null, Typeface.BOLD);
                 tv_d.setTextSize(TEXT_SIZE);
-                tv_d.setText(String.format(getString(R.string.summary_table_cell), getInstance().getMultiNrOfDice(key), key));
+                tv_d.setText(String.format(getString(R.string.summary_table_cell), Data.getInstance().getMultiNrOfDice(key), key));
                 tv_d.setTag("d" + key);
                 views.add(tv_d);
                 views.add(tl);
@@ -399,7 +397,7 @@ public class MainActivity extends AppCompatActivity implements Observer, SensorE
                             if (Thread.interrupted()) {
                                 return;
                             }
-                            int nr = getInstance().getTotal(key, counter+1);
+                            int nr = Data.getInstance().getTotal(key, counter+1);
                             tv[j].setTag(counter);
                             tv[j].setText(String.format(getString(R.string.summary_table_cell), counter+1, nr));
                         }
@@ -429,23 +427,23 @@ public class MainActivity extends AppCompatActivity implements Observer, SensorE
             Random r;
 
             if (pref.getBoolean("pref_settings_accelerometer", false)) {
-                r = new Random(getInstance().getSeed());
+                r = new Random(Data.getInstance().getSeed());
             } else {
                 r = new Random();
             }
             for (Integer key :
-                    getInstance().getMultiDice().keySet()) {
-                for (int j = 0; j < getInstance().getMultiDice().get(key).size(); j++) {
+                    Data.getInstance().getMultiDice().keySet()) {
+                for (int j = 0; j < Data.getInstance().getMultiDice().get(key).size(); j++) {
                     roll = (int)(r.nextDouble() * key + 1);
                     total += roll;
                     if (Thread.interrupted()) {
                         handler.sendEmptyMessage(0);
                         return;
                     }
-                    getInstance().getMultiDice().get(key).set(j, roll);
+                    Data.getInstance().getMultiDice().get(key).set(j, roll);
                 }
             }
-            getInstance().setTotal(total);
+            Data.getInstance().setTotal(total);
 
             handler.sendEmptyMessage(8);
         }
@@ -454,7 +452,7 @@ public class MainActivity extends AppCompatActivity implements Observer, SensorE
 
     // TODO: add buttons for disabled features
     private synchronized void diceRolled() {
-        int total = getInstance().getTotal();
+        int total = Data.getInstance().getTotal();
         TextView total_result = (TextView)findViewById(R.id.total_result);
         total_result.setText(String.valueOf(total));
 
@@ -473,7 +471,7 @@ public class MainActivity extends AppCompatActivity implements Observer, SensorE
             mUpdateTableThread = null;
         }
 
-        if (getInstance().getMultiDice().size() > 0) {
+        if (Data.getInstance().getMultiDice().size() > 0) {
             if (pref.getBoolean("pref_settings_summary", true)) {
                 mUpdateTableThread = new UpdateTableThread();
                 mUpdateTableThread.start();
@@ -489,10 +487,10 @@ public class MainActivity extends AppCompatActivity implements Observer, SensorE
     private void showDices() {
         TextView dice = (TextView) findViewById(R.id.nrOfDice);
 
-        StringBuilder diceSet = new StringBuilder("Dice: (").append(getInstance().getMultiNrOfDice()).append("), ");
+        StringBuilder diceSet = new StringBuilder("Dice: (").append(Data.getInstance().getMultiNrOfDice()).append("), ");
         for (Integer key :
-                getInstance().getMultiDice().keySet()) {
-            diceSet.append(getInstance().getMultiDice().get(key).size()).append("d").append(key).append(", ");
+                Data.getInstance().getMultiDice().keySet()) {
+            diceSet.append(Data.getInstance().getMultiDice().get(key).size()).append("d").append(key).append(", ");
         }
         diceSet.delete(diceSet.length() - 2, diceSet.length() - 1);
         dice.setText(diceSet.toString());
@@ -500,7 +498,7 @@ public class MainActivity extends AppCompatActivity implements Observer, SensorE
 
     @Override
     protected void onStart() {
-        getInstance().addObserver(this);
+        Data.getInstance().addObserver(this);
 
         RelativeLayout summary = (RelativeLayout) findViewById(R.id.view_summary);
         RelativeLayout detailed_roll = (RelativeLayout) findViewById(R.id.view_detailed_roll);
@@ -548,6 +546,10 @@ public class MainActivity extends AppCompatActivity implements Observer, SensorE
             mSensorManager.unregisterListener(this);
             mSensorManager = null;
         }
+        if (mRollThread != null) {
+            mRollThread.interrupt();
+            mRollThread = null;
+        }
         if (mRollUpdateThread != null) {
             mRollUpdateThread.interrupt();
             mRollUpdateThread = null;
@@ -556,24 +558,24 @@ public class MainActivity extends AppCompatActivity implements Observer, SensorE
             mUpdateTableThread.interrupt();
             mUpdateTableThread = null;
         }
-        getInstance().deleteObserver(this);
+        Data.getInstance().deleteObserver(this);
         super.onStop();
     }
 
     @Override
     public void update(Observable o, Object obj) {
-        if (getInstance().getFlag(Data.FLAG_DICE_ROLL)) {
+        if (Data.getInstance().getFlag(Data.FLAG_DICE_ROLL)) {
             diceRolled();
-            getInstance().setFlag(Data.FLAG_DICE_ROLL, false);
+            Data.getInstance().setFlag(Data.FLAG_DICE_ROLL, false);
         }
-        if (getInstance().getFlag(Data.FLAG_DICESET_UPDATE)) {
+        if (Data.getInstance().getFlag(Data.FLAG_DICESET_UPDATE)) {
             showDices();
-            getInstance().setFlag(Data.FLAG_DICE_ROLL, false);
+            Data.getInstance().setFlag(Data.FLAG_DICE_ROLL, false);
         }
-        if (getInstance().getFlag(Data.FLAG_INTERRUPTED)) {
+        if (Data.getInstance().getFlag(Data.FLAG_INTERRUPTED)) {
             TextView total_result = (TextView)findViewById(R.id.total_result);
             total_result.setText(R.string.interrupted);
-            getInstance().setFlag(Data.FLAG_INTERRUPTED, false);
+            Data.getInstance().setFlag(Data.FLAG_INTERRUPTED, false);
         }
     }
 }

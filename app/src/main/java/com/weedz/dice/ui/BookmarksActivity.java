@@ -5,7 +5,6 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Button;
@@ -242,10 +241,8 @@ public class BookmarksActivity extends AppCompatActivity {
                             Data.getInstance().addMultiDice(nrList.get(i),
                                     sidesList.get(i));
                         }
-                        Toast.makeText(BookmarksActivity.this, c.getString(1) + " Loaded", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(BookmarksActivity.this, c.getString(1) + " loaded", Toast.LENGTH_SHORT).show();
                         finish();
-                    } else {
-                        Log.d(TAG, "Empty return for entry_id " + position);
                     }
                     c.close();
                 } else {
