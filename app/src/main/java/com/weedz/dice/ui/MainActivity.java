@@ -10,6 +10,7 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -46,7 +47,8 @@ public class MainActivity extends AppCompatActivity implements Observer, SensorE
     // Threading stuff
     private RollUpdateUIThread mRollUpdateThread;
     private UpdateTableThread mUpdateTableThread;
-    private RollThread mRollThread;
+    //private RollThread mRollThread;
+    private AsyncRollTask mRollTask;
     private WeakReference<MainActivity> ref = new WeakReference<>(this);
     private UpdateUIHandler handler = new UpdateUIHandler(ref);
 
@@ -70,14 +72,7 @@ public class MainActivity extends AppCompatActivity implements Observer, SensorE
         bt_add_die.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (mRollUpdateThread != null) {
-                    mRollUpdateThread.interrupt();
-                    mRollUpdateThread = null;
-                }
-                if (mUpdateTableThread != null) {
-                    mUpdateTableThread.interrupt();
-                    mUpdateTableThread = null;
-                }
+                stopThreads();
                 EditText add_die_nr = (EditText)findViewById(R.id.add_die_nr);
                 EditText add_die_sides = (EditText)findViewById(R.id.add_die_sides);
                 try {
@@ -93,14 +88,7 @@ public class MainActivity extends AppCompatActivity implements Observer, SensorE
         bt_remove_die.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (mRollUpdateThread != null) {
-                    mRollUpdateThread.interrupt();
-                    mRollUpdateThread = null;
-                }
-                if (mUpdateTableThread != null) {
-                    mUpdateTableThread.interrupt();
-                    mUpdateTableThread = null;
-                }
+                stopThreads();
                 EditText remove_die_nr = (EditText)findViewById(R.id.remove_die_nr);
                 EditText remove_die_sides = (EditText)findViewById(R.id.remove_die_sides);
                 try {
@@ -116,14 +104,7 @@ public class MainActivity extends AppCompatActivity implements Observer, SensorE
         bt_set_dice.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (mRollUpdateThread != null) {
-                    mRollUpdateThread.interrupt();
-                    mRollUpdateThread = null;
-                }
-                if (mUpdateTableThread != null) {
-                    mUpdateTableThread.interrupt();
-                    mUpdateTableThread = null;
-                }
+                stopThreads();
                 EditText set_dice_nr = (EditText)findViewById(R.id.set_dice_nr);
                 EditText set_dice_sides = (EditText)findViewById(R.id.set_dice_sides);
                 try {
@@ -139,14 +120,7 @@ public class MainActivity extends AppCompatActivity implements Observer, SensorE
         roll.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (mRollUpdateThread != null) {
-                    mRollUpdateThread.interrupt();
-                    mRollUpdateThread = null;
-                }
-                if (mUpdateTableThread != null) {
-                    mUpdateTableThread.interrupt();
-                    mUpdateTableThread = null;
-                }
+                stopThreads();
                 TextView total_result = (TextView)findViewById(R.id.total_result);
                 total_result.setText(R.string.calculating);
                 TextView rolls = (TextView) findViewById(R.id.die_rolls);
@@ -155,7 +129,7 @@ public class MainActivity extends AppCompatActivity implements Observer, SensorE
 
                 LinearLayout table_container = (LinearLayout)findViewById(R.id.dice_summary_table_container);
                 table_container.removeAllViews();
-                if (pref.getBoolean("pref_settings_summary", true)) {
+                if (pref.getBoolean("pref_settings_summary", true) && Data.getInstance().getMultiDice().size() > 0) {
                     TableRow tr = new TableRow(ref.get());
                     tr.setTag("calculating");
                     TextView textView = new TextView(ref.get());
@@ -167,17 +141,67 @@ public class MainActivity extends AppCompatActivity implements Observer, SensorE
                     table_container.addView(tr);
                 }
 
-                if (mRollThread != null) {
-                    mRollThread.interrupt();
-                    mRollThread = null;
+                // AsyncTask
+                if (mRollTask != null) {
+                    mRollTask.cancel(true);
                 }
-                mRollThread = new RollThread();
-                mRollThread.start();
+                mRollTask = new AsyncRollTask();
+                mRollTask.execute();
             }
         });
 
         showDices();
         Data.getInstance().addObserver(this);
+    }
+
+    private class AsyncRollTask extends AsyncTask<String, Void, String> {
+
+        @Override
+        protected String doInBackground(String... strings) {
+
+            int roll;
+            int total = 0;
+            Random r;
+            if (pref.getBoolean("pref_settings_accelerometer", false)) {
+                r = new Random(Data.getInstance().getSeed());
+            } else {
+                r = new Random();
+            }
+            for (Integer key :
+                    Data.getInstance().getMultiDice().keySet()) {
+                for (int j = 0; j < Data.getInstance().getMultiDice().get(key).size(); j++) {
+                    if (isCancelled()) {
+                        return null;
+                    }
+                    roll = (int)(r.nextDouble() * key + 1);
+                    total += roll;
+                    Data.getInstance().getMultiDice().get(key).set(j, roll);
+                }
+            }
+            Data.getInstance().setTotal(total);
+
+            return null;
+        }
+
+        protected void onPostExecute(String result) {
+            diceRolled();
+        }
+
+        protected void onCancelled() {
+            stopThreads();
+            TextView total_result = (TextView)findViewById(R.id.total_result);
+            total_result.setText(R.string.interrupted);
+            if (pref.getBoolean("pref_settings_detailed_roll", true)) {
+                TextView rolls = (TextView) findViewById(R.id.die_rolls);
+                rolls.setTextSize(Float.parseFloat(pref.getString("pref_settings_detailed_roll_thread_font_size", "19")));
+                rolls.setText("");
+            }
+            if (pref.getBoolean("pref_settings_summary", true)) {
+                LinearLayout table_container = (LinearLayout)findViewById(R.id.dice_summary_table_container);
+                table_container.removeAllViews();
+            }
+        }
+
     }
 
     @Override
@@ -273,10 +297,6 @@ public class MainActivity extends AppCompatActivity implements Observer, SensorE
                 if (msg.what == 6) {
                     TextView rolls = (TextView) ref.get().findViewById(R.id.die_rolls);
                     rolls.append((String)msg.obj);
-                }
-                // Roll
-                if (msg.what == 8) {
-                    ref.get().diceRolled();
                 }
             }
             super.handleMessage(msg);
@@ -419,38 +439,6 @@ public class MainActivity extends AppCompatActivity implements Observer, SensorE
         }
     }
 
-    private class RollThread extends Thread {
-
-        public void run() {
-            int roll;
-            int total = 0;
-            Random r;
-
-            if (pref.getBoolean("pref_settings_accelerometer", false)) {
-                r = new Random(Data.getInstance().getSeed());
-            } else {
-                r = new Random();
-            }
-            for (Integer key :
-                    Data.getInstance().getMultiDice().keySet()) {
-                for (int j = 0; j < Data.getInstance().getMultiDice().get(key).size(); j++) {
-                    roll = (int)(r.nextDouble() * key + 1);
-                    total += roll;
-                    if (Thread.interrupted()) {
-                        handler.sendEmptyMessage(0);
-                        return;
-                    }
-                    Data.getInstance().getMultiDice().get(key).set(j, roll);
-                }
-            }
-            Data.getInstance().setTotal(total);
-
-            handler.sendEmptyMessage(8);
-        }
-
-    }
-
-    // TODO: add buttons for disabled features
     private synchronized void diceRolled() {
         int total = Data.getInstance().getTotal();
         TextView total_result = (TextView)findViewById(R.id.total_result);
@@ -462,14 +450,14 @@ public class MainActivity extends AppCompatActivity implements Observer, SensorE
             rolls.setText("");
         }
 
-        if (mRollUpdateThread != null) {
+        /*if (mRollUpdateThread != null) {
             mRollUpdateThread.interrupt();
             mRollUpdateThread = null;
         }
         if (mUpdateTableThread != null) {
             mUpdateTableThread.interrupt();
             mUpdateTableThread = null;
-        }
+        }*/
 
         if (Data.getInstance().getMultiDice().size() > 0) {
             if (pref.getBoolean("pref_settings_summary", true)) {
@@ -481,6 +469,20 @@ public class MainActivity extends AppCompatActivity implements Observer, SensorE
                 mRollUpdateThread = new RollUpdateUIThread();
                 mRollUpdateThread.start();
             }
+        }
+    }
+
+    private void stopThreads() {
+        if (mRollTask != null) {
+            mRollTask.cancel(true);
+        }
+        if (mRollUpdateThread != null) {
+            mRollUpdateThread.interrupt();
+            mRollUpdateThread = null;
+        }
+        if (mUpdateTableThread != null) {
+            mUpdateTableThread.interrupt();
+            mUpdateTableThread = null;
         }
     }
 
@@ -542,22 +544,16 @@ public class MainActivity extends AppCompatActivity implements Observer, SensorE
 
     @Override
     protected void onStop() {
+        stopThreads();
         if (mSensorManager != null) {
             mSensorManager.unregisterListener(this);
             mSensorManager = null;
+            Data.getInstance().setSeed(0);
         }
-        if (mRollThread != null) {
+        /*if (mRollThread != null) {
             mRollThread.interrupt();
             mRollThread = null;
-        }
-        if (mRollUpdateThread != null) {
-            mRollUpdateThread.interrupt();
-            mRollUpdateThread = null;
-        }
-        if (mUpdateTableThread != null) {
-            mUpdateTableThread.interrupt();
-            mUpdateTableThread = null;
-        }
+        }*/
         Data.getInstance().deleteObserver(this);
         super.onStop();
     }
