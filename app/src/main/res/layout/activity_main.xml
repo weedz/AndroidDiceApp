@@ -143,27 +143,6 @@
                     android:layout_height="wrap_content"
                     android:inputType="numberSigned"
                     android:ems="1"
-                    android:id="@+id/add_die_nr"
-                    android:text="1"
-                    android:layout_gravity="center_vertical"
-                    android:layout_column="0"
-                    android:selectAllOnFocus="true" />
-
-                <EditText
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:inputType="numberSigned"
-                    android:ems="1"
-                    android:id="@+id/add_die_sides"
-                    android:text="6"
-                    android:layout_column="1"
-                    android:selectAllOnFocus="true" />
-
-                <EditText
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:inputType="numberSigned"
-                    android:ems="1"
                     android:id="@+id/set_dice_nr"
                     android:text="1"
                     android:layout_column="2"
@@ -179,25 +158,6 @@
                     android:layout_column="3"
                     android:selectAllOnFocus="true" />
 
-                <EditText
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:inputType="numberSigned"
-                    android:ems="1"
-                    android:id="@+id/remove_die_nr"
-                    android:text="1"
-                    android:layout_column="4"
-                    android:selectAllOnFocus="true" />
-
-                <EditText
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:inputType="numberSigned"
-                    android:ems="1"
-                    android:id="@+id/remove_die_sides"
-                    android:text="6"
-                    android:layout_column="5"
-                    android:selectAllOnFocus="true" />
             </TableRow>
 
             <TableRow

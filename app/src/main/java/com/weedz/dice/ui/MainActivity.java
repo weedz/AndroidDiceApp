@@ -73,8 +73,8 @@ public class MainActivity extends AppCompatActivity implements Observer, SensorE
             @Override
             public void onClick(View view) {
                 stopThreads();
-                EditText add_die_nr = (EditText)findViewById(R.id.add_die_nr);
-                EditText add_die_sides = (EditText)findViewById(R.id.add_die_sides);
+                EditText add_die_nr = (EditText)findViewById(R.id.set_dice_nr);
+                EditText add_die_sides = (EditText)findViewById(R.id.set_dice_sides);
                 try {
                     int nr = Integer.parseInt(add_die_nr.getText().toString());
                     int sides = Integer.parseInt(add_die_sides.getText().toString());
@@ -89,8 +89,8 @@ public class MainActivity extends AppCompatActivity implements Observer, SensorE
             @Override
             public void onClick(View view) {
                 stopThreads();
-                EditText remove_die_nr = (EditText)findViewById(R.id.remove_die_nr);
-                EditText remove_die_sides = (EditText)findViewById(R.id.remove_die_sides);
+                EditText remove_die_nr = (EditText)findViewById(R.id.set_dice_nr);
+                EditText remove_die_sides = (EditText)findViewById(R.id.set_dice_sides);
                 try {
                     int nr = Integer.parseInt(remove_die_nr.getText().toString());
                     int sides = Integer.parseInt(remove_die_sides.getText().toString());
