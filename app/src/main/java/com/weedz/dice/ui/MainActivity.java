@@ -271,7 +271,7 @@ public class MainActivity extends AppCompatActivity implements Observer, SensorE
     static class UpdateUIHandler extends Handler {
         WeakReference<MainActivity> ref;
 
-        public UpdateUIHandler(WeakReference<MainActivity> ref) {
+        private UpdateUIHandler(WeakReference<MainActivity> ref) {
             this.ref = ref;
         }
 
