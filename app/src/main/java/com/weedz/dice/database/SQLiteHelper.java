@@ -1,10 +1,7 @@
 package com.weedz.dice.database;
 
 import android.content.Context;
-import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.provider.BaseColumns;
-import android.util.Log;
 
 /**
  * Created by WeeDz on 2016-08-12.

@@ -1,16 +1,18 @@
 package com.weedz.dice.ui;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 
 import com.weedz.dice.R;
-import com.weedz.dice.ui.fragments.SettingsFragment;
 import com.weedz.dice.ViewUtils;
+import com.weedz.dice.ui.fragments.SettingsFragment;
 
 public class SettingsActivity extends AppCompatActivity implements SettingsFragment.OnResourceUpdatedListener {
 
@@ -62,12 +64,22 @@ public class SettingsActivity extends AppCompatActivity implements SettingsFragm
                 startActivity(intent);
                 break;
             case R.id.set_default_settings:
-                SharedPreferences tmpPref = PreferenceManager.getDefaultSharedPreferences(this);
-                SharedPreferences.Editor editor = tmpPref.edit();
-                editor.clear();
-                editor.apply();
-                PreferenceManager.setDefaultValues(this, R.xml.pref_main, true);
-                recreate();
+                new AlertDialog.Builder(this)
+                        .setTitle("Confirm")
+                        .setMessage("Restore default settings?")
+                        .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                SharedPreferences tmpPref = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+                                SharedPreferences.Editor editor = tmpPref.edit();
+                                editor.clear();
+                                editor.apply();
+                                PreferenceManager.setDefaultValues(getApplicationContext(), R.xml.pref_main, true);
+                                recreate();
+                            }
+                        })
+                        .setNegativeButton(android.R.string.no, null).show();
+
                 break;
 
         }

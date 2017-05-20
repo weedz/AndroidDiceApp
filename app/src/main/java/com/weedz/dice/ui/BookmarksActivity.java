@@ -1,9 +1,12 @@
 package com.weedz.dice.ui;
 
 import android.content.ContentValues;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.AdapterView;
@@ -34,6 +37,7 @@ public class BookmarksActivity extends AppCompatActivity {
     private static final String TAG = "BookmarksActivity";
 
     private boolean actionChecked = false;
+    private boolean checkItems = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -171,24 +175,54 @@ public class BookmarksActivity extends AppCompatActivity {
             }
         });
 
+        final Context cnxt = this;
         Button clear = (Button)findViewById(R.id.bookmarks_clear_button);
         clear.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                DiceDB mDBHelper = new DiceDB(getApplicationContext());
-                SQLiteDatabase db = mDBHelper.getReadableDatabase();
-                db.execSQL("DELETE FROM " + BookmarksDB.Bookmarks.TABLE_NAME);
-                db.close();
-                idList.clear();
-                nameList.clear();
-                nrList.clear();
-                sidesList.clear();
-                adapter.notifyDataSetChanged();
+                new AlertDialog.Builder(cnxt)
+                        .setTitle("Confirm")
+                        .setMessage("Clear saved bookmarks")
+                        .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                DiceDB mDBHelper = new DiceDB(getApplicationContext());
+                                SQLiteDatabase db = mDBHelper.getReadableDatabase();
+                                db.execSQL("DELETE FROM " + BookmarksDB.Bookmarks.TABLE_NAME);
+                                db.close();
+                                idList.clear();
+                                nameList.clear();
+                                nrList.clear();
+                                sidesList.clear();
+                                adapter.notifyDataSetChanged();
+                            }
+                        })
+                        .setNegativeButton(android.R.string.no, null).show();
             }
         });
+
+
+        bookmarksList.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+
+            public boolean onItemLongClick(AdapterView<?> adapterView, View item, int position, long l) {
+                checkItems = true;
+                bookmarksList.setItemChecked(position, true);
+
+                Toast.makeText(getApplicationContext(), "Long click", Toast.LENGTH_SHORT).show();
+                return true;
+
+            }
+
+        });
+
         bookmarksList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View item, int position, long l) {
+
+                if (checkItems) {
+                    bookmarksList.setItemChecked(position, true);
+                    return;
+                }
 
                 // TODO: Add confirmation
                 String id = adapter.getItem(position);

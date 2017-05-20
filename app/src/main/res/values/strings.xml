@@ -16,4 +16,8 @@
     <string name="default_settings">Default settings</string>
     <string name="calculating">Calculating&#8230;</string>
     <string name="summary_table_cell">%1$d:%2$d</string>
+    <string name="bookmarks_load">Load</string>
+    <string name="bookmarks_remove">Remove</string>
+    <string name="bookmarks_save">Save</string>
+    <string name="bookmarks_clear">Clear</string>
 </resources>
