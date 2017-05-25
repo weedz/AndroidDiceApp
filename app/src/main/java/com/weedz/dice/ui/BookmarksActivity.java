@@ -1,5 +1,6 @@
 package com.weedz.dice.ui;
 
+import android.app.LauncherActivity;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -175,12 +176,12 @@ public class BookmarksActivity extends AppCompatActivity {
             }
         });
 
-        final Context cnxt = this;
+        final Context context = this;
         Button clear = (Button)findViewById(R.id.bookmarks_clear_button);
         clear.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                new AlertDialog.Builder(cnxt)
+                new AlertDialog.Builder(context)
                         .setTitle("Confirm")
                         .setMessage("Clear saved bookmarks")
                         .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
