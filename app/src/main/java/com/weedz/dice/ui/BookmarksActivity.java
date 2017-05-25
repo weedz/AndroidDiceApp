@@ -1,6 +1,5 @@
 package com.weedz.dice.ui;
 
-import android.app.LauncherActivity;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -225,7 +224,6 @@ public class BookmarksActivity extends AppCompatActivity {
                     return;
                 }
 
-                // TODO: Add confirmation
                 String id = adapter.getItem(position);
                 DiceDB mDBHelper = new DiceDB(getApplicationContext());
                 SQLiteDatabase db = mDBHelper.getReadableDatabase();

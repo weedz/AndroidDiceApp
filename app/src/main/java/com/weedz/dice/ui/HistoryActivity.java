@@ -63,6 +63,7 @@ public class HistoryActivity extends AppCompatActivity {
         while (c.moveToNext()) {
             values.add(c.getString(1));
         }
+        c.close();
         db.close();
     }
 

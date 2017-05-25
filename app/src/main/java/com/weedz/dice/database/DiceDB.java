@@ -7,7 +7,7 @@ import android.database.sqlite.SQLiteDatabase;
  * Created by WeeDz on 2016-08-14.
  */
 public class DiceDB extends SQLiteHelper {
-    protected static final int DATABASE_VERSION = 4;
+    private static final int DATABASE_VERSION = 4;
 
     public DiceDB(Context context) {
         super(context, DATABASE_VERSION);

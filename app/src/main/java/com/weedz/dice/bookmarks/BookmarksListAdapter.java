@@ -18,31 +18,26 @@ public class BookmarksListAdapter extends ArrayAdapter<String> {
 
     private static final String TAG = "BookmarksListAdapter";
 
-    private final Context context;
     private final ArrayList<String> name;
     private final ArrayList<ArrayList<Integer>> nr;
     private final ArrayList<ArrayList<Integer>> sides;
 
+    private static class ViewHolder {
+        TextView name, data;
+    }
 
     public BookmarksListAdapter(Context context, int resId, ArrayList<String> values, ArrayList<String> name, ArrayList<ArrayList<Integer>> sidesList, ArrayList<ArrayList<Integer>> nrList) {
         super(context, resId, values);
-        this.context = context;
         this.name = name;
         nr = nrList;
         sides = sidesList;
     }
 
-    // TODO: Use view holder to improve performance
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        LayoutInflater inflater = (LayoutInflater) context
-                .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-
-        View rowView = inflater.inflate(R.layout.bookmarks_row_layout, parent, false);
-
-        TextView saveName = (TextView) rowView.findViewById(R.id.bookmarks_row_save_name);
-        TextView saveData = (TextView) rowView.findViewById(R.id.bookmarks_row_save_data);
-        saveName.setText(name.get(position));
+        if (convertView == null) {
+            convertView = newView();
+        }
 
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < nr.get(position).size(); i++) {
@@ -53,7 +48,22 @@ public class BookmarksListAdapter extends ArrayAdapter<String> {
             sb.deleteCharAt(sb.length()-1);
         }
 
-        saveData.setText(sb.toString());
+        ViewHolder holder = (ViewHolder)convertView.getTag();
+        holder.name.setText(name.get(position));
+        holder.data.setText(sb.toString());
+
+        return convertView;
+    }
+
+    private View newView() {
+        LayoutInflater inflater = LayoutInflater.from(getContext());
+        View rowView = inflater.inflate(R.layout.bookmarks_row_layout, null);
+
+        ViewHolder holder = new ViewHolder();
+        holder.name = (TextView)rowView.findViewById(R.id.bookmarks_row_save_name);
+        holder.data = (TextView)rowView.findViewById(R.id.bookmarks_row_save_data);
+
+        rowView.setTag(holder);
 
         return rowView;
     }

@@ -17,7 +17,7 @@ public abstract class BookmarksDB {
         public static final String COLUMN_NAME_SAVE_SIDES = "save_sides";
     }
 
-    protected static final String SQL_CREATE_ENTRIES =
+    static final String SQL_CREATE_ENTRIES =
             "CREATE TABLE " + Bookmarks.TABLE_NAME + " (" +
                     Bookmarks.COLUMN_NAME_ENTRY_ID + " INTEGER PRIMARY KEY," +
                     Bookmarks.COLUMN_NAME_SAVE_NAME + " TEXT," +

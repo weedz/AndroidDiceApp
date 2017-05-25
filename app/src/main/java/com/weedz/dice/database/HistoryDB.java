@@ -14,7 +14,7 @@ public abstract class HistoryDB {
         public static final String COLUMN_NAME_DATA = "data";
     }
 
-    protected static final String SQL_CREATE_ENTRIES =
+    static final String SQL_CREATE_ENTRIES =
             "CREATE TABLE " +
                     History.TABLE_NAME + "(" +
                     History.COLUMN_NAME_ENTRY_ID + " INTEGER PRIMARY KEY," +
