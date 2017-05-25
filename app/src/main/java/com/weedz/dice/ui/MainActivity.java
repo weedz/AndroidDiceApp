@@ -16,6 +16,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -307,7 +308,7 @@ public class MainActivity extends AppCompatActivity implements Observer, SensorE
 
         public void run() {
 
-            StringBuilder sb = new StringBuilder(Data.getInstance().getMultiNrOfDice() * 2);
+            StringBuilder sb = new StringBuilder();
             // Multi dice
             for (Integer key :
                     Data.getInstance().getMultiDice().keySet()) {
@@ -333,6 +334,7 @@ public class MainActivity extends AppCompatActivity implements Observer, SensorE
                 SQLiteDatabase db = mDBHelper.getWritableDatabase();
                 ContentValues values = new ContentValues();
                 values.put(HistoryDB.History.COLUMN_NAME_DATA, sb.toString());
+                values.put(HistoryDB.History.COLUMN_NAME_TIMESTAMP, System.currentTimeMillis());
                 db.insert(HistoryDB.History.TABLE_NAME, null, values);
                 Cursor c = db.rawQuery("SELECT COUNT(*) FROM " + HistoryDB.History.TABLE_NAME, null);
                 c.moveToFirst();
@@ -449,15 +451,6 @@ public class MainActivity extends AppCompatActivity implements Observer, SensorE
             rolls.setTextSize(Float.parseFloat(pref.getString("pref_settings_detailed_roll_thread_font_size", "19")));
             rolls.setText("");
         }
-
-        /*if (mRollUpdateThread != null) {
-            mRollUpdateThread.interrupt();
-            mRollUpdateThread = null;
-        }
-        if (mUpdateTableThread != null) {
-            mUpdateTableThread.interrupt();
-            mUpdateTableThread = null;
-        }*/
 
         if (Data.getInstance().getMultiDice().size() > 0) {
             if (pref.getBoolean("pref_settings_summary", true)) {

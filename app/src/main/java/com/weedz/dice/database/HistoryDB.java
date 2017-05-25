@@ -12,12 +12,14 @@ public abstract class HistoryDB {
         public static final String TABLE_NAME = "history";
         public static final String COLUMN_NAME_ENTRY_ID = "entry_id";
         public static final String COLUMN_NAME_DATA = "data";
+        public static final String COLUMN_NAME_TIMESTAMP = "timestamp";
     }
 
     static final String SQL_CREATE_ENTRIES =
             "CREATE TABLE " +
                     History.TABLE_NAME + "(" +
                     History.COLUMN_NAME_ENTRY_ID + " INTEGER PRIMARY KEY," +
-                    History.COLUMN_NAME_DATA + " TEXT" +
-                    " )";
+                    History.COLUMN_NAME_DATA + " TEXT," +
+                    History.COLUMN_NAME_TIMESTAMP + " TEXT" +
+                    ")";
 }

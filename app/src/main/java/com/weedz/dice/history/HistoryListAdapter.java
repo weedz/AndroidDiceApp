@@ -9,6 +9,7 @@ import android.widget.TextView;
 
 import com.weedz.dice.R;
 
+import java.sql.Timestamp;
 import java.util.ArrayList;
 
 /**
@@ -19,12 +20,13 @@ public class HistoryListAdapter extends ArrayAdapter<String> {
 
     private final Context context;
     private final ArrayList<String> values;
+    private ArrayList<Long> timestamp;
 
-
-    public HistoryListAdapter(Context context, int resId, ArrayList<String> values) {
+    public HistoryListAdapter(Context context, int resId, ArrayList<String> values, ArrayList<Long> timestamp) {
         super(context, resId, values);
         this.context = context;
         this.values = values;
+        this.timestamp = timestamp;
     }
 
     @Override
@@ -36,7 +38,9 @@ public class HistoryListAdapter extends ArrayAdapter<String> {
         View rowView = inflater.inflate(R.layout.history_row_layout, parent, false);
 
         TextView data = (TextView) rowView.findViewById(R.id.history_row_data);
+        TextView time = (TextView) rowView.findViewById(R.id.history_row_time);
         data.setText(values.get(position));
+        time.setText(new Timestamp(timestamp.get(position)).toString());
 
         return rowView;
 

@@ -14,7 +14,6 @@ import android.widget.ListView;
 
 import com.weedz.dice.R;
 import com.weedz.dice.ViewUtils;
-import com.weedz.dice.database.BookmarksDB;
 import com.weedz.dice.database.DiceDB;
 import com.weedz.dice.database.HistoryDB;
 import com.weedz.dice.history.HistoryListAdapter;
@@ -24,12 +23,10 @@ import java.util.ArrayList;
 /*
 
 TODO: change ListView to ExpandableListView
-
  */
 
 public class HistoryActivity extends AppCompatActivity {
     private static final String TAG = "HistoryActivity";
-    private ArrayList<String> values = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,15 +36,15 @@ public class HistoryActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         // Fill history list view
-        final ListView history = (ListView)findViewById(R.id.history_listview);
-        final HistoryListAdapter adapter = new HistoryListAdapter(this, R.layout.history_row_layout, values);
-        history.setAdapter(adapter);
+        ArrayList<String> values = new ArrayList<>();
+        ArrayList<Long> timestamp = new ArrayList<>();
 
         DiceDB mDBHelper = new DiceDB(getApplicationContext());
         SQLiteDatabase db = mDBHelper.getReadableDatabase();
         String[] returnValues = {
                 HistoryDB.History.COLUMN_NAME_ENTRY_ID,
-                HistoryDB.History.COLUMN_NAME_DATA
+                HistoryDB.History.COLUMN_NAME_DATA,
+                HistoryDB.History.COLUMN_NAME_TIMESTAMP
         };
         String sortOrder = HistoryDB.History.COLUMN_NAME_ENTRY_ID + " DESC";
         Cursor c = db.query(
@@ -62,7 +59,12 @@ public class HistoryActivity extends AppCompatActivity {
 
         while (c.moveToNext()) {
             values.add(c.getString(1));
+            timestamp.add(Long.parseLong(c.getString(2)));
         }
+
+        final ListView history = (ListView)findViewById(R.id.history_listview);
+        final HistoryListAdapter adapter = new HistoryListAdapter(this, R.layout.history_row_layout, values, timestamp);
+        history.setAdapter(adapter);
         c.close();
         db.close();
     }
@@ -88,10 +90,9 @@ public class HistoryActivity extends AppCompatActivity {
                                 SQLiteDatabase db = mDBHelper.getReadableDatabase();
                                 db.execSQL("DELETE FROM " + HistoryDB.History.TABLE_NAME);
                                 db.close();
-
-                                values.clear();
                                 final ListView history = (ListView)findViewById(R.id.history_listview);
                                 ArrayAdapter adapter = (ArrayAdapter)history.getAdapter();
+                                adapter.clear();
                                 adapter.notifyDataSetChanged();
                             }
                         })

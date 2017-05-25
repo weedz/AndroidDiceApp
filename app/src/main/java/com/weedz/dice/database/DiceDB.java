@@ -2,12 +2,14 @@ package com.weedz.dice.database;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
+import android.util.Log;
 
 /**
  * Created by WeeDz on 2016-08-14.
  */
 public class DiceDB extends SQLiteHelper {
-    private static final int DATABASE_VERSION = 4;
+    public static final String TAG = "DiceDB";
+    private static final int DATABASE_VERSION = 6;
 
     public DiceDB(Context context) {
         super(context, DATABASE_VERSION);
