@@ -15,6 +15,7 @@
         <item name="colorPrimary">@color/DarkcolorPrimary</item>
         <item name="colorPrimaryDark">@color/DarkcolorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
+        <item name="android:colorBackground">@android:color/black</item>
     </style>
 
     <style name="AppTheme.ActionBar" parent="Widget.AppCompat.ActionBar.Solid" />

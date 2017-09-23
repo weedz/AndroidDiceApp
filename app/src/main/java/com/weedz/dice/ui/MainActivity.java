@@ -10,6 +10,7 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
@@ -69,13 +70,13 @@ public class MainActivity extends AppCompatActivity implements Observer, SensorE
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        Button bt_add_die = (Button)findViewById(R.id.add_die_button);
+        Button bt_add_die = (Button) findViewById(R.id.add_die_button);
         bt_add_die.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 stopThreads();
-                EditText add_die_nr = (EditText)findViewById(R.id.set_dice_nr);
-                EditText add_die_sides = (EditText)findViewById(R.id.set_dice_sides);
+                EditText add_die_nr = (EditText) findViewById(R.id.set_dice_nr);
+                EditText add_die_sides = (EditText) findViewById(R.id.set_dice_sides);
                 try {
                     int nr = Integer.parseInt(add_die_nr.getText().toString());
                     int sides = Integer.parseInt(add_die_sides.getText().toString());
@@ -85,13 +86,13 @@ public class MainActivity extends AppCompatActivity implements Observer, SensorE
                 }
             }
         });
-        Button bt_remove_die = (Button)findViewById(R.id.remove_die_button);
+        Button bt_remove_die = (Button) findViewById(R.id.remove_die_button);
         bt_remove_die.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 stopThreads();
-                EditText remove_die_nr = (EditText)findViewById(R.id.set_dice_nr);
-                EditText remove_die_sides = (EditText)findViewById(R.id.set_dice_sides);
+                EditText remove_die_nr = (EditText) findViewById(R.id.set_dice_nr);
+                EditText remove_die_sides = (EditText) findViewById(R.id.set_dice_sides);
                 try {
                     int nr = Integer.parseInt(remove_die_nr.getText().toString());
                     int sides = Integer.parseInt(remove_die_sides.getText().toString());
@@ -101,13 +102,13 @@ public class MainActivity extends AppCompatActivity implements Observer, SensorE
                 }
             }
         });
-        Button bt_set_dice = (Button)findViewById(R.id.set_dice_button);
+        Button bt_set_dice = (Button) findViewById(R.id.set_dice_button);
         bt_set_dice.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 stopThreads();
-                EditText set_dice_nr = (EditText)findViewById(R.id.set_dice_nr);
-                EditText set_dice_sides = (EditText)findViewById(R.id.set_dice_sides);
+                EditText set_dice_nr = (EditText) findViewById(R.id.set_dice_nr);
+                EditText set_dice_sides = (EditText) findViewById(R.id.set_dice_sides);
                 try {
                     int nr = Integer.parseInt(set_dice_nr.getText().toString());
                     int sides = Integer.parseInt(set_dice_sides.getText().toString());
@@ -117,18 +118,18 @@ public class MainActivity extends AppCompatActivity implements Observer, SensorE
                 }
             }
         });
-        final Button roll = (Button)findViewById(R.id.roll_die_button);
+        final Button roll = (Button) findViewById(R.id.roll_die_button);
         roll.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 stopThreads();
-                TextView total_result = (TextView)findViewById(R.id.total_result);
+                TextView total_result = (TextView) findViewById(R.id.total_result);
                 total_result.setText(R.string.calculating);
                 TextView rolls = (TextView) findViewById(R.id.die_rolls);
                 rolls.setTextSize(Float.parseFloat(pref.getString("pref_settings_detailed_roll_thread_font_size", "19")));
                 rolls.setText("");
 
-                LinearLayout table_container = (LinearLayout)findViewById(R.id.dice_summary_table_container);
+                LinearLayout table_container = (LinearLayout) findViewById(R.id.dice_summary_table_container);
                 table_container.removeAllViews();
                 if (pref.getBoolean("pref_settings_summary", true) && Data.getInstance().getMultiDice().size() > 0) {
                     TableRow tr = new TableRow(ref.get());
@@ -153,6 +154,10 @@ public class MainActivity extends AppCompatActivity implements Observer, SensorE
 
         showDices();
         Data.getInstance().addObserver(this);
+        // ATTENTION: This was auto-generated to handle app links.
+        Intent appLinkIntent = getIntent();
+        String appLinkAction = appLinkIntent.getAction();
+        Uri appLinkData = appLinkIntent.getData();
     }
 
     private class AsyncRollTask extends AsyncTask<String, Void, String> {
